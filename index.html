@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
         body { display: flex; flex-direction: column; align-items: center; font-family: 'Montserrat', Arial, sans-serif; background: linear-gradient(135deg, #1a1a1a, #2d2d2d); margin: 0; padding: 20px; min-height: 100vh; color: #fff; }
-        #nftCanvas { border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 255, 157, 0.3); background-color: #fff; width: 100%; max-width: 256px; height: auto; }
+        #nftCanvas { border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 255, 157, 0.3); background-color: #fff; width: 100%; max-width: 512px; height: auto; }
         .header { text-align: center; margin-bottom: 20px; }
         h1 { font-size: 48px; color: #00ff9d; text-shadow: 0 0 10px rgba(0, 255, 157, 0.5); }
         .wallet-info { margin: 10px 0; font-size: 16px; }
@@ -137,7 +137,7 @@
             </select>
         </div>
     </div>
-    <canvas id="nftCanvas" width="256" height="256"></canvas>
+    <canvas id="nftCanvas" width="512" height="512"></canvas>
     <div class="action-buttons">
         <button id="randomizeBtn" class="action-btn" onclick="randomizeNFT()">Randomize</button>
         <button id="downloadBtn" class="action-btn" onclick="downloadNFT()">Download PNG</button>
@@ -162,7 +162,7 @@
             Clothes: ["None", "Admirals Coat", "Bandolier", "Bayc T Black", "Bayc T Red", "Biker Vest", "Black Holes T", "Black Suit", "Black T", "Blue Dress", "Bone Necklace", "Bone Tee", "Caveman Pelt", "Cowboy Shirt", "Guayabera", "Hawaiian", "Hip Hop", "Kings Robe", "Lab Coat", "Leather Jacket", "Leather Punk Jacket", "Lumberjack Shirt", "Navy Striped Tee", "Pimp Coat", "Prison Jumpsuit", "Prom Dress", "Puffy Vest", "Rainbow Suspenders", "Sailor Shirt", "Service", "Sleeveless Logo T", "Sleeveless T", "Smoking Jacket", "Space suit", "Striped Tee", "Stunt Jacket", "Tanktop", "Tie Dye", "Toga", "Tuxedo Tee", "Tweed Suit", "Vietnam Jacket", "Wool Turtleneck", "Work Vest"],
             Eyes: ["3D", "Angry", "Blindfold", "Bloodshot", "Blue Beams", "Bored", "Closed", "Coins", "Crazy", "Cyborg", "Eyepatch", "Heart", "Holographic", "Hypnotized", "Laser Eyes", "Robot", "Sad", "Scumbag", "Sleepy", "Sunglasses", "Wide Eyed", "X Eyes", "Zombie"],
             Hat: ["None", "Army Hat", "Baby's Bonnet", "Bandana Blue", "Bayc Flipped Brim", "Bayc Hat Black", "Bayc Hat Red", "Beanie", "Bowler", "Bunny Ears", "Commie Hat", "Cowboy Hat", "Faux Hawk", "Fez", "Fisherman's Hat", "Girl's Hair Pink", "Girl's Hair Short", "Halo", "Horns", "Irish Boho", "King's Crown", "Laurel Wreath", "Party Hat 1", "Party Hat 2", "Police Motorcycle Helmet", "Prussian Helmet", "S&m Hat", "Safari", "Sea Captain's Hat", "Seaman's Hat", "Short Mohawk", "Spinner Hat", "Stuntman Helmet", "Sushi Chef Headband", "Trippy Captain's Hat", "Vietnam Era Helmet", "Ww2 Pilot Helm"],
-            Mouth: ["Bored Bubblegum", "Bored Cigar", "Bored Cigarette", "Bored FIRSTDagger", "Bored Kazoo", "Bored Party Horn", "Bored Pipe", "Bored Pizza", "Bored Unshaven Bubblegum", "Bored Unshaven Cigar", "Bored Unshaven Cigarette", "Bored Unshaven Dagger", "Bored Unshaven Kazoo", "Bored Unshaven Party Horn", "Bored Unshaven Pipe", "Bored Unshaven Pizza", "Bored Unshaven", "Bored", "Discomfort", "Dumbfounded", "Grin Diamond Grill", "Grin Gold Grill", "Grin Multicolored", "Grin", "Jovial", "Phoneme L", "Phoneme Oh", "Phoneme ooo", "Phoneme Vuh", "Phoneme Wah", "Rage", "Small Grin", "Tongue Out"],
+            Mouth: ["Bored Bubblegum", "Bored Cigar", "Bored Cigarette", "Bored Dagger", "Bored Kazoo", "Bored Party Horn", "Bored Pipe", "Bored Pizza", "Bored Unshaven Bubblegum", "Bored Unshaven Cigar", "Bored Unshaven Cigarette", "Bored Unshaven Dagger", "Bored Unshaven Kazoo", "Bored Unshaven Party Horn", "Bored Unshaven Pipe", "Bored Unshaven Pizza", "Bored Unshaven", "Bored", "Discomfort", "Dumbfounded", "Grin Diamond Grill", "Grin Gold Grill", "Grin Multicolored", "Grin", "Jovial", "Phoneme L", "Phoneme Oh", "Phoneme ooo", "Phoneme Vuh", "Phoneme Wah", "Rage", "Small Grin", "Tongue Out"],
             Earring: ["None", "Cross", "Diamond Stud", "Gold Hoop", "Gold Stud", "Silver Hoop", "Silver Stud"]
         };
         const layerOrder = ["Background", "Fur", "Clothes", "Eyes", "Hat", "Mouth", "Earring"];
@@ -171,34 +171,8 @@
         const ctx = canvas.getContext("2d");
         let web3, accounts, contract;
         const CONTRACT_ADDRESS = "0xB5862E774f718A0Ad39b6855a11B08c5127b1c5e";
-        const CONTRACT_ABI = [
-            {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
-            {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"batchAddToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"tokenOwner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
-        ];
-        const shibariumMainnet = {
-            chainId: 109,
-            chainName: 'Shibarium',
-            nativeCurrency: { name: 'BONE', symbol: 'BONE', decimals: 18 },
-            rpcUrls: ['https://www.shibrpc.com'],
-            blockExplorerUrls: ['https://shibariumscan.io']
-        };
+        const CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"batchAddToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"tokenOwner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}];
+        const shibariumMainnet = { chainId: 109, chainName: 'Shibarium', nativeCurrency: { name: 'BONE', symbol: 'BONE', decimals: 18 }, rpcUrls: ['https://www.shibrpc.com'], blockExplorerUrls: ['https://shibariumscan.io'] };
 
         function showModal(message) {
             document.getElementById('modalMessage').innerHTML = message;
@@ -212,7 +186,7 @@
         async function connectWallet() {
             const connectButton = document.getElementById('connectWalletBtn');
             if (!window.ethereum) {
-                showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
+                showModal('No wallet detected. Install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
                 return;
             }
             connectButton.classList.add('loading');
@@ -226,18 +200,11 @@
                 const chainId = await web3.eth.getChainId();
                 if (chainId !== 109) {
                     try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: web3.utils.numberToHex(109) }]
-                        });
+                        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: web3.utils.numberToHex(109) }] });
                     } catch (switchError) {
-                        if (switchError.code === 4902) {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [shibariumMainnet]
-                            });
-                        } else {
-                            showModal('Failed to switch network. Please add Shibarium manually.');
+                        if (switchError.code === 4902) await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [shibariumMainnet] });
+                        else {
+                            showModal('Failed to switch network. Add Shibarium manually.');
                             return;
                         }
                     }
@@ -272,24 +239,19 @@
             document.getElementById(`${layer.toLowerCase()}Select`).value = currentIndices[layer];
         }
 
-        async function drawLayer(layerName, layerValue) {
+        async function drawLayer(layerName, layerValue, context) {
             if (layerValue === "None") return Promise.resolve();
             return new Promise((resolve) => {
                 const img = new Image();
                 img.src = `images/${layerName}/${layerValue}.png`;
-                img.onload = () => {
-                    ctx.drawImage(img, 0, 0, 256, 256);
-                    resolve();
-                };
+                img.onload = () => { context.drawImage(img, 0, 0, 512, 512); resolve(); };
                 img.onerror = () => resolve();
             });
         }
 
         async function updateNFT() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (const layer of layerOrder) {
-                await drawLayer(layer, layers[layer][currentIndices[layer]]);
-            }
+            for (const layer of layerOrder) await drawLayer(layer, layers[layer][currentIndices[layer]], ctx);
         }
 
         function cycleLayer(layer, direction) {
@@ -315,7 +277,7 @@
         function downloadNFT() {
             const link = document.createElement("a");
             link.download = "nft-custom.png";
-            link.href = canvas.toDataURL("image/png", 0.1);
+            link.href = canvas.toDataURL("image/png", 1.0);
             link.click();
         }
 
@@ -328,7 +290,7 @@
             mintButton.classList.add('loading');
             mintButton.disabled = true;
             let countdown = 10;
-            showModal(`Minting will start in <span id="countdown">${countdown}</span> seconds...`);
+            showModal(`Minting starts in <span id="countdown">${countdown}</span> seconds...`);
             const countdownElement = document.getElementById('countdown');
             const countdownInterval = setInterval(() => {
                 countdown--;
@@ -354,19 +316,15 @@
                 }
                 const totalSupply = await contract.methods.totalSupply().call();
                 if (totalSupply >= 100000) {
-                    showModal('Minting failed: Total NFT supply limit (100,000) reached.');
+                    showModal('Minting failed: Total supply limit (100,000) reached.');
                     return;
                 }
-                const imageData = canvas.toDataURL("image/png", 0.1).split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
-                if (attributes.length !== 7) {
-                    showModal('Minting failed: Incorrect number of attributes, must be 7.');
-                    return;
-                }
+                const tokenId = totalSupply;
                 const metadata = {
-                    name: `Bored Ape Shib Club #${totalSupply}`,
+                    name: `Bored Ape Shib Club #${tokenId}`,
                     description: "A unique Bored Ape Shib Club NFT",
-                    image: `data:image/png;base64,${imageData}`,
+                    image: `https://shibarium.fun/BoredApeShibClub/${tokenId}.png`,
                     attributes: attributes.map((val, i) => ({ trait_type: layerOrder[i], value: val }))
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
@@ -378,11 +336,10 @@
             } catch (error) {
                 let reason = 'Minting failed: Unknown error - ' + error.message;
                 if (error.message.includes("Not whitelisted")) reason = 'Minting failed: Your address is not whitelisted.';
-                else if (error.message.includes("Attribute combination already used")) reason = 'Minting failed: This attribute combination is already used.';
-                else if (error.message.includes("Invalid attributes length")) reason = 'Minting failed: Incorrect number of attributes, must be 7.';
-                else if (error.message.includes("Max supply reached")) reason = 'Minting failed: Total NFT supply limit (100,000) reached.';
+                else if (error.message.includes("Attribute combination already used")) reason = 'Minting failed: This attribute combination is taken.';
+                else if (error.message.includes("Max supply reached")) reason = 'Minting failed: Total supply limit (100,000) reached.';
                 else if (error.message.includes("Minting limit reached")) reason = 'Minting failed: You’ve reached your minting limit (10).';
-                else if (error.code === -32603 || error.message.includes("reverted")) reason = 'Minting failed: Transaction reverted by EVM, possibly due to insufficient gas.';
+                else if (error.code === -32603 || error.message.includes("reverted")) reason = 'Minting failed: Transaction reverted, check gas or attributes.';
                 showModal(reason);
             } finally {
                 mintButton.classList.remove('loading');
@@ -405,24 +362,33 @@
                 const owner = await contract.methods.ownerOf(i).call();
                 if (owner.toLowerCase() === accounts[0].toLowerCase()) {
                     const tokenURI = await contract.methods.tokenURI(i).call();
-                    await displayNFT(i, tokenURI);
+                    await renderNFT(i, tokenURI);
                 }
             }
         }
 
-        async function displayNFT(tokenId, tokenURI) {
+        async function renderNFT(tokenId, tokenURI) {
             const nftList = document.getElementById('nftList');
             let metadata;
             if (tokenURI.startsWith('data:application/json;base64,')) {
                 const base64Data = tokenURI.split(',')[1];
                 metadata = JSON.parse(atob(base64Data));
             } else {
-                metadata = { name: `Token #${tokenId}`, image: 'Unknown' };
+                metadata = { name: `Token #${tokenId}`, attributes: [] };
+            }
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 512;
+            tempCanvas.height = 512;
+            const tempCtx = tempCanvas.getContext('2d');
+            for (const attr of metadata.attributes) {
+                const layerName = attr.trait_type;
+                const layerValue = attr.value;
+                await drawLayer(layerName, layerValue, tempCtx);
             }
             const nftDiv = document.createElement('div');
             nftDiv.className = 'nft-card';
             nftDiv.innerHTML = `
-                <img src="${metadata.image}" alt="${metadata.name}">
+                <img src="${tempCanvas.toDataURL('image/png', 1.0)}" alt="${metadata.name}">
                 <p>${metadata.name} (ID: ${tokenId})</p>
                 <input type="text" id="transferAddress${tokenId}" placeholder="Recipient Address">
                 <button class="action-btn" onclick="transferNFT(${tokenId})">Transfer</button>
@@ -449,12 +415,12 @@
         window.onload = () => {
             for (const layer of layerOrder) updateLayerValue(layer);
             updateNFT();
-            if (!window.ethereum) showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
+            if (!window.ethereum) showModal('No wallet detected. Install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
         };
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
-                showModal('Switched to wrong network. Please reconnect to Shibarium.');
+                showModal('Switched to wrong network. Reconnect to Shibarium.');
                 web3 = null; contract = null; accounts = null; updateWalletInfo();
             } else connectWallet();
         });
