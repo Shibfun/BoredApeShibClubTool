@@ -31,32 +31,6 @@
             font-size: 14px;
             color: #333;
         }
-        .referral-info {
-            margin: 10px 0;
-            font-size: 14px;
-            color: #333;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .referral-link {
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .copy-btn {
-            padding: 5px 10px;
-            font-size: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .copy-btn:hover {
-            background-color: #45a049;
-        }
         .controls {
             margin: 10px 0;
             display: flex;
@@ -212,15 +186,8 @@
                 padding: 6px 12px;
                 font-size: 12px;
             }
-            .wallet-info, .referral-info {
+            .wallet-info {
                 font-size: 12px;
-            }
-            .referral-link {
-                max-width: 150px;
-            }
-            .copy-btn {
-                padding: 3px 8px;
-                font-size: 10px;
             }
         }
     </style>
@@ -231,10 +198,6 @@
         <div class="wallet-info">
             Wallet: <span id="walletAddress">Not connected</span><br>
             <a href="https://shibfun.github.io/BoredApeShibClub/" target="_blank">Home</a>
-        </div>
-        <div class="referral-info">
-            Referral Link: <span id="referralLink" class="referral-link">Connect wallet to see your link</span>
-            <button id="copyBtn" class="copy-btn" disabled>Copy</button>
         </div>
         <button id="connectWalletBtn" class="action-btn">Connect Wallet</button>
     </div>
@@ -485,7 +448,7 @@
     <div class="action-buttons">
         <button id="randomizeBtn" class="action-btn" onclick="randomizeNFT()">Randomize</button>
         <button id="downloadBtn" class="action-btn" onclick="downloadNFT()">Download PNG</button>
-        <button id="mintBtn" class="action-btn" onclick="mintNFT()" disabled>Mint NFT</button>
+        <button id="mintBtn" class="action-btn" disabled>Mint NFT</button>
     </div>
     <div id="modal" class="modal">
         <div class="modal-content">
@@ -499,6 +462,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/ipfs-http-client/dist/index.min.js"></script>
     <script>
         const layers = {
             Background: ["Cool Gray", "Dark Blue", "Dark Purple", "Off White A", "Off White B", "Off White C", "Off White D", "Red"],
@@ -511,27 +475,13 @@
         };
 
         const layerOrder = ["Background", "Fur", "Clothes", "Eyes", "Hat", "Mouth", "Earring"];
-        const currentIndices = {
-            Background: 0,
-            Fur: 0,
-            Clothes: 0,
-            Eyes: 0,
-            Hat: 0,
-            Mouth: 0,
-            Earring: 0
-        };
+        const currentIndices = { Background: 0, Fur: 0, Clothes: 0, Eyes: 0, Hat: 0, Mouth: 0, Earring: 0 };
 
         const canvas = document.getElementById("nftCanvas");
         const ctx = canvas.getContext("2d");
 
-        let web3, accounts, contract, noneTokenContract;
+        let web3, accounts, contract;
         const CONTRACT_ADDRESS = "0xE204721807f8a9FEe31B766141FBAE9F192856C9";
-        const NONE_TOKEN_ADDRESS = "0x64E19b6a167878d2483d166212A3c2c68b1eB842";
-        const DEFAULT_REFERRER = "0x9FC924a7c8678C7Bb13114Bd0C74E446937499fA";
-        const BONE_PAYMENT = "10000000000000000000";
-        const BASE_URL = "https://shibfun.github.io/BoredApeShibClub/";
-        let referrerFromUrl = getReferrerFromUrl();
-
         const CONTRACT_ABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -542,11 +492,6 @@
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"}
         ];
 
-        const NONE_TOKEN_ABI = [
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"bool","name":"joined","type":"bool"},{"internalType":"bool","name":"paidBone","type":"bool"},{"internalType":"bool","name":"nodeStatus","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"joinWithReferrer","outputs":[],"stateMutability":"payable","type":"function"}
-        ];
-
         const shibariumMainnet = {
             chainId: 109,
             chainName: 'Shibarium',
@@ -555,6 +500,8 @@
             blockExplorerUrls: ['https://shibariumscan.io']
         };
 
+        const ipfs = window.IpfsHttpClient({ host: 'ipfs.infura.io', port: 5001, protocol: 'https' });
+
         function showModal(message) {
             document.getElementById('modalMessage').innerHTML = message;
             document.getElementById('modal').style.display = 'flex';
@@ -562,46 +509,6 @@
 
         function closeModal() {
             document.getElementById('modal').style.display = 'none';
-        }
-
-        function getReferrerFromUrl() {
-            const path = window.location.pathname;
-            const addressRegex = /^\/0x[a-fA-F0-9]{40}$/;
-            if (addressRegex.test(path)) {
-                return path.substring(1);
-            }
-            return DEFAULT_REFERRER;
-        }
-
-        async function updateReferralLink() {
-            const referralLinkElement = document.getElementById('referralLink');
-            const copyButton = document.getElementById('copyBtn');
-            if (!accounts || !noneTokenContract) {
-                referralLinkElement.textContent = 'Connect wallet to see your link';
-                copyButton.disabled = true;
-            } else {
-                const userStatus = await noneTokenContract.methods.getUserStatus(accounts[0]).call();
-                const hasJoined = userStatus[0];
-                if (hasJoined) {
-                    const referralLink = `${BASE_URL}${accounts[0]}`;
-                    referralLinkElement.textContent = referralLink;
-                    copyButton.disabled = false;
-                } else {
-                    referralLinkElement.textContent = 'None';
-                    copyButton.disabled = true;
-                }
-            }
-        }
-
-        function copyReferralLink() {
-            const referralLink = document.getElementById('referralLink').textContent;
-            if (referralLink !== 'None' && referralLink !== 'Connect wallet to see your link' && referralLink !== 'Error checking status') {
-                navigator.clipboard.writeText(referralLink).then(() => {
-                    showModal('Referral link copied to clipboard!');
-                }).catch(err => {
-                    showModal('Failed to copy link: ' + err);
-                });
-            }
         }
 
         async function connectWallet() {
@@ -637,10 +544,8 @@
                 }
             }
             contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-            noneTokenContract = new web3.eth.Contract(NONE_TOKEN_ABI, NONE_TOKEN_ADDRESS);
             showModal('Connected to Shibarium successfully!');
             updateWalletAddress();
-            updateReferralLink();
             document.getElementById('mintBtn').disabled = false;
             fetchOwnedNFTs();
             connectButton.classList.remove('loading');
@@ -661,9 +566,7 @@
         }
 
         async function drawLayer(layerName, layerValue) {
-            if (layerValue === "None") {
-                return Promise.resolve();
-            }
+            if (layerValue === "None") return Promise.resolve();
             return new Promise((resolve) => {
                 const img = new Image();
                 img.src = `images/${layerName}/${layerValue}.png`;
@@ -671,10 +574,7 @@
                     ctx.drawImage(img, 0, 0, 512, 512);
                     resolve();
                 };
-                img.onerror = () => {
-                    console.error(`Failed to load image: images/${layerName}/${layerValue}.png`);
-                    resolve();
-                };
+                img.onerror = () => resolve();
             });
         }
 
@@ -701,8 +601,6 @@
         function randomizeNFT() {
             for (const layer of layerOrder) {
                 currentIndices[layer] = Math.floor(Math.random() * layers[layer].length);
-            }
-            for (const layer of layerOrder) {
                 updateLayerValue(layer);
             }
             updateNFT();
@@ -715,61 +613,40 @@
             link.click();
         }
 
+        async function uploadToIPFS(imageData) {
+            const blob = await (await fetch(imageData)).blob();
+            const result = await ipfs.add(blob);
+            return `https://ipfs.infura.io/ipfs/${result.path}`;
+        }
+
         async function mintNFT() {
-            if (!web3 || !contract || !accounts || !noneTokenContract) {
+            if (!web3 || !contract || !accounts) {
                 showModal('Please connect your wallet first!');
                 return;
             }
             const mintButton = document.getElementById('mintBtn');
             mintButton.classList.add('loading');
             mintButton.disabled = true;
-            let countdown = 10;
-            showModal(`Minting will start in <span id="countdown">${countdown}</span> seconds...`);
-            const countdownElement = document.getElementById('countdown');
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = countdown;
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    proceedWithMinting();
-                }
-            }, 1000);
-        }
-
-        async function proceedWithMinting() {
-            const mintButton = document.getElementById('mintBtn');
             try {
-                const imageData = canvas.toDataURL("image/png").split(',')[1];
+                showModal('Uploading image to IPFS...');
+                const imageData = canvas.toDataURL("image/png");
+                const imageUrl = await uploadToIPFS(imageData);
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 const totalSupply = await contract.methods.totalSupply().call();
                 const metadata = {
                     name: `Bored Ape Shib Club #${totalSupply}`,
                     description: "A unique Bored Ape Shib Club NFT",
-                    image: `data:image/png;base64,${imageData}`,
-                    attributes: attributes.map((val, i) => ({
-                        trait_type: layerOrder[i],
-                        value: val
-                    }))
+                    image: imageUrl,
+                    attributes: attributes.map((val, i) => ({ trait_type: layerOrder[i], value: val }))
                 };
-                const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
-                const userStatus = await noneTokenContract.methods.getUserStatus(accounts[0]).call();
-                const hasJoined = userStatus[0];
-                const isNode = userStatus[2];
-                if (!hasJoined && !isNode) {
-                    showModal('Joining with 10 BONE payment...');
-                    await noneTokenContract.methods.joinWithReferrer(referrerFromUrl).send({
-                        from: accounts[0],
-                        value: BONE_PAYMENT
-                    });
-                    showModal('Successfully joined! Proceeding to mint NFT...');
-                    updateReferralLink();
-                }
+                const metadataBlob = new Blob([JSON.stringify(metadata)], { type: 'application/json' });
+                const metadataResult = await ipfs.add(metadataBlob);
+                const tokenURI = `https://ipfs.infura.io/ipfs/${metadataResult.path}`;
                 showModal('Minting NFT...');
                 await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0] });
                 showModal('NFT minted successfully!');
                 fetchOwnedNFTs();
             } catch (error) {
-                console.error('Minting error:', error);
                 showModal('Minting failed: ' + (error.message || 'Unknown error'));
             } finally {
                 mintButton.classList.remove('loading');
@@ -807,7 +684,8 @@
                 const base64Data = tokenURI.split(',')[1];
                 metadata = JSON.parse(atob(base64Data));
             } else {
-                metadata = { name: `Token #${tokenId}`, image: 'Unknown' };
+                const response = await fetch(tokenURI);
+                metadata = await response.json();
             }
             const nftDiv = document.createElement('div');
             nftDiv.style.textAlign = 'center';
@@ -842,7 +720,6 @@
                 updateLayerValue(layer);
             }
             updateNFT();
-            updateReferralLink();
             if (!window.location.protocol.startsWith('http')) {
                 showModal('Please run this page via a local server (e.g., "npx serve") to connect MetaMask.');
             } else if (!window.ethereum) {
@@ -857,7 +734,6 @@
                 contract = null;
                 accounts = null;
                 updateWalletAddress();
-                updateReferralLink();
                 document.getElementById('mintBtn').disabled = true;
             } else {
                 connectWallet();
@@ -873,13 +749,12 @@
                 contract = null;
                 accounts = null;
                 updateWalletAddress();
-                updateReferralLink();
                 document.getElementById('mintBtn').disabled = true;
             }
         });
 
         document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
-        document.getElementById('copyBtn').addEventListener('click', copyReferralLink);
+        document.getElementById('mintBtn').addEventListener('click', mintNFT);
     </script>
 </body>
 </html>
