@@ -146,7 +146,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script>
-        let web3, accounts, contract;
+        let web3, accounts, contract, isOwner = false;
         const CONTRACT_ADDRESS = "0x9d8eE62EbA3954eA0a7f53FA417FD5125786Ec00";
 
         const CONTRACT_ABI = [
@@ -228,20 +228,45 @@
         }
 
         async function updateWalletInfo() {
+            const addButton = document.getElementById('addToWhitelistBtn');
             if (!accounts) {
                 document.getElementById('walletAddress').innerText = 'Not connected';
-                document.getElementById('addToWhitelistBtn').disabled = true;
-            } else {
-                const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
-                document.getElementById('walletAddress').innerText = shortAddress;
+                addButton.disabled = true;
+                return;
+            }
+            const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+            document.getElementById('walletAddress').innerText = shortAddress;
+            try {
                 const owner = await contract.methods.owner().call();
-                if (owner.toLowerCase() !== accounts[0].toLowerCase()) {
+                isOwner = owner.toLowerCase() === accounts[0].toLowerCase();
+                if (!isOwner) {
                     showModal('You are not the contract owner!');
-                    document.getElementById('addToWhitelistBtn').disabled = true;
+                    addButton.disabled = true;
                 } else {
-                    document.getElementById('addToWhitelistBtn').disabled = false;
+                    checkAddressesInput(); // Check if there are valid addresses to enable the button
+                }
+            } catch (error) {
+                showModal('Failed to verify owner: ' + error.message);
+                addButton.disabled = true;
+            }
+        }
+
+        function checkAddressesInput() {
+            const addressesInput = document.getElementById('whitelistAddresses').value.trim();
+            const addButton = document.getElementById('addToWhitelistBtn');
+            if (!isOwner || !addressesInput) {
+                addButton.disabled = true;
+                return;
+            }
+            const addresses = addressesInput.split('\n').map(addr => addr.trim()).filter(addr => addr);
+            let allValid = true;
+            for (const addr of addresses) {
+                if (!web3.utils.isAddress(addr)) {
+                    allValid = false;
+                    break;
                 }
             }
+            addButton.disabled = !allValid || addresses.length === 0;
         }
 
         async function addToWhitelist() {
@@ -280,7 +305,7 @@
                 showModal('Failed to add addresses: ' + error.message);
             } finally {
                 addButton.classList.remove('loading');
-                addButton.disabled = false;
+                checkAddressesInput();
             }
         }
 
@@ -288,6 +313,7 @@
             if (!window.ethereum) {
                 showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
             }
+            document.getElementById('whitelistAddresses').addEventListener('input', checkAddressesInput);
         };
 
         window.ethereum?.on('chainChanged', (chainId) => {
