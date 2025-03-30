@@ -534,12 +534,21 @@
 
         const CONTRACT_ABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
-            {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"anonymous":false,"inputs":[{"indexed":true,"internalType":"address","name":"from","type":"address"},{"indexed":true,"internalType":"address","name":"to","type":"address"},{"indexed":true,"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"Transfer","type":"event"},
             {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"}
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"}
         ];
 
         const NONE_TOKEN_ABI = [
@@ -595,7 +604,7 @@
 
         function copyReferralLink() {
             const referralLink = document.getElementById('referralLink').textContent;
-            if (referralLink !== 'None' && referralLink !== 'Connect wallet to see your link' && referralLink !== 'Error checking status') {
+            if (referralLink !== 'None' && referralLink !== 'Connect wallet to see your link') {
                 navigator.clipboard.writeText(referralLink).then(() => {
                     showModal('Referral link copied to clipboard!');
                 }).catch(err => {
@@ -611,39 +620,43 @@
                 return;
             }
             connectButton.classList.add('loading');
-            web3 = new Web3(window.ethereum);
-            accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            if (!accounts.length) {
-                showModal('Please unlock your wallet or connect it.');
-                return;
-            }
-            const chainId = await web3.eth.getChainId();
-            if (chainId !== 109) {
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: web3.utils.numberToHex(109) }]
-                    });
-                } catch (switchError) {
-                    if (switchError.code === 4902) {
+            try {
+                web3 = new Web3(window.ethereum);
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (!accounts.length) {
+                    showModal('Please unlock your wallet or connect it.');
+                    return;
+                }
+                const chainId = await web3.eth.getChainId();
+                if (chainId !== 109) {
+                    try {
                         await window.ethereum.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [shibariumMainnet]
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: web3.utils.numberToHex(109) }]
                         });
-                    } else {
-                        showModal('Failed to switch network. Please add Shibarium manually.');
-                        return;
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [shibariumMainnet]
+                            });
+                        } else {
+                            throw new Error('Failed to switch to Shibarium.');
+                        }
                     }
                 }
+                contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+                noneTokenContract = new web3.eth.Contract(NONE_TOKEN_ABI, NONE_TOKEN_ADDRESS);
+                showModal('Connected to Shibarium successfully!');
+                updateWalletAddress();
+                updateReferralLink();
+                document.getElementById('mintBtn').disabled = false;
+                fetchOwnedNFTs();
+            } catch (error) {
+                showModal('Connection failed: ' + error.message);
+            } finally {
+                connectButton.classList.remove('loading');
             }
-            contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-            noneTokenContract = new web3.eth.Contract(NONE_TOKEN_ABI, NONE_TOKEN_ADDRESS);
-            showModal('Connected to Shibarium successfully!');
-            updateWalletAddress();
-            updateReferralLink();
-            document.getElementById('mintBtn').disabled = false;
-            fetchOwnedNFTs();
-            connectButton.classList.remove('loading');
         }
 
         async function updateWalletAddress() {
@@ -661,9 +674,7 @@
         }
 
         async function drawLayer(layerName, layerValue) {
-            if (layerValue === "None") {
-                return Promise.resolve();
-            }
+            if (layerValue === "None") return Promise.resolve();
             return new Promise((resolve) => {
                 const img = new Image();
                 img.src = `images/${layerName}/${layerValue}.png`;
@@ -671,9 +682,7 @@
                     ctx.drawImage(img, 0, 0, 512, 512);
                     resolve();
                 };
-                img.onerror = () => {
-                    resolve();
-                };
+                img.onerror = resolve;
             });
         }
 
@@ -722,21 +731,30 @@
             const mintButton = document.getElementById('mintBtn');
             mintButton.classList.add('loading');
             mintButton.disabled = true;
-            let countdown = 10;
-            showModal(`Minting will start in <span id="countdown">${countdown}</span> seconds...`);
-            const countdownElement = document.getElementById('countdown');
-            const countdownInterval = setInterval(() => {
-                countdown--;
-                countdownElement.textContent = countdown;
-                if (countdown <= 0) {
-                    clearInterval(countdownInterval);
-                    proceedWithMinting();
-                }
-            }, 1000);
+            try {
+                let countdown = 10;
+                showModal(`Minting will start in <span id="countdown">${countdown}</span> seconds...`);
+                const countdownElement = document.getElementById('countdown');
+                await new Promise(resolve => {
+                    const interval = setInterval(() => {
+                        countdown--;
+                        countdownElement.textContent = countdown;
+                        if (countdown <= 0) {
+                            clearInterval(interval);
+                            resolve();
+                        }
+                    }, 1000);
+                });
+                await proceedWithMinting();
+            } catch (error) {
+                showModal('Minting process failed: ' + error.message);
+            } finally {
+                mintButton.classList.remove('loading');
+                mintButton.disabled = false;
+            }
         }
 
         async function proceedWithMinting() {
-            const mintButton = document.getElementById('mintBtn');
             try {
                 const imageData = canvas.toDataURL("image/png").split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
@@ -745,22 +763,19 @@
                     name: `Shiba Inu Yacht Club #${totalSupply}`,
                     description: "A unique Shiba Inu Yacht Club NFT",
                     image: `data:image/png;base64,${imageData}`,
-                    attributes: attributes.map((val, i) => ({
-                        trait_type: layerOrder[i],
-                        value: val
-                    }))
+                    attributes: attributes.map((val, i) => ({ trait_type: layerOrder[i], value: val }))
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
                 const userStatus = await noneTokenContract.methods.getUserStatus(accounts[0]).call();
                 const hasJoined = userStatus[0];
                 const isNode = userStatus[2];
                 if (!hasJoined && !isNode) {
-                    showModal('You need to join first by paying 10 BONE...');
+                    showModal('Joining with 10 BONE payment...');
                     await noneTokenContract.methods.joinWithReferrer(referrerFromUrl).send({
                         from: accounts[0],
                         value: BONE_PAYMENT
                     });
-                    showModal('Successfully joined! Proceeding to mint NFT...');
+                    showModal('Successfully joined! Proceeding to mint...');
                     updateReferralLink();
                 }
                 showModal('Minting NFT...');
@@ -768,10 +783,7 @@
                 showModal('NFT minted successfully!');
                 fetchOwnedNFTs();
             } catch (error) {
-                showModal('Minting failed: ' + error.message);
-            } finally {
-                mintButton.classList.remove('loading');
-                mintButton.disabled = false;
+                throw error;
             }
         }
 
