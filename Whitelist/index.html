@@ -256,7 +256,7 @@
                     return;
                 }
                 showModal('Adding addresses to whitelist...');
-                await contract.methods.batchAddToWhitelist(addresses).send({ from: accounts[0], gas: 3000000 });
+                await contract.methods.batchAddToWhitelist(addresses).send({ from: accounts[0], gas: 1000000 });
                 showModal(`Successfully added ${addresses.length} addresses to whitelist!`);
                 document.getElementById('whitelistInput').value = '';
             } catch (error) {
