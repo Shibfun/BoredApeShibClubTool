@@ -6,200 +6,36 @@
     <title>Bored Ape Shib Club</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-family: 'Montserrat', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
-            margin: 0;
-            padding: 20px;
-            min-height: 100vh;
-            color: #fff;
-        }
-        #nftCanvas {
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 255, 157, 0.3);
-            background-color: #fff;
-            width: 100%;
-            max-width: 256px;
-            height: auto;
-        }
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        h1 {
-            font-size: 48px;
-            color: #00ff9d;
-            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
-        }
-        .wallet-info {
-            margin: 10px 0;
-            font-size: 16px;
-        }
-        .mint-status {
-            font-size: 14px;
-            color: #00ff9d;
-        }
-        .controls {
-            margin: 20px 0;
-            display: flex;
-            flex-wrap: nowrap;
-            gap: 10px;
-            width: 100%;
-            max-width: 1200px;
-            overflow-x: auto;
-        }
-        .control-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 140px;
-        }
-        label {
-            margin-bottom: 5px;
-            font-weight: bold;
-            font-size: 14px;
-            color: #00ff9d;
-        }
-        .layer-value {
-            margin-bottom: 5px;
-            font-size: 12px;
-            text-align: center;
-            color: #fff;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .cycle-buttons {
-            display: flex;
-            gap: 5px;
-        }
-        .cycle-btn {
-            padding: 5px 10px;
-            font-size: 12px;
-            background: linear-gradient(45deg, #00ff9d, #00cc7a);
-            color: #1a1a1a;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        .cycle-btn:hover {
-            transform: scale(1.05);
-        }
-        select {
-            margin-top: 5px;
-            padding: 5px;
-            font-size: 12px;
-            width: 100%;
-            border-radius: 5px;
-            background: #333;
-            color: #fff;
-            border: 1px solid #00ff9d;
-        }
-        .action-buttons {
-            display: flex;
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .action-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background: linear-gradient(45deg, #00ff9d, #00cc7a);
-            color: #1a1a1a;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .action-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.7);
-        }
-        .action-btn:disabled {
-            background: #666;
-            cursor: not-allowed;
-        }
-        .action-btn.loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background: #2d2d2d;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: center;
-            color: #fff;
-            max-width: 350px;
-            border: 2px solid #00ff9d;
-            box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
-        }
-        .modal-content p {
-            margin-bottom: 15px;
-            font-size: 18px;
-        }
-        .modal-content button {
-            padding: 10px 20px;
-            background: #00ff9d;
-            color: #1a1a1a;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-        .nft-viewer {
-            margin-top: 30px;
-            width: 100%;
-            max-width: 800px;
-        }
-        .nft-viewer h2 {
-            font-size: 32px;
-            color: #00ff9d;
-            text-align: center;
-        }
-        #nftList {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            justify-content: center;
-        }
-        .nft-card {
-            text-align: center;
-            background: #333;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 255, 157, 0.2);
-        }
-        .nft-card img {
-            width: 100%;
-            border-radius: 5px;
-        }
-        .nft-card p {
-            font-size: 14px;
-            margin: 5px 0;
-        }
-        .nft-card input {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            border: 1px solid #00ff9d;
-            background: #1a1a1a;
-            color: #fff;
-        }
+        body { display: flex; flex-direction: column; align-items: center; font-family: 'Montserrat', Arial, sans-serif; background: linear-gradient(135deg, #1a1a1a, #2d2d2d); margin: 0; padding: 20px; min-height: 100vh; color: #fff; }
+        #nftCanvas { border-radius: 15px; box-shadow: 0 8px 20px rgba(0, 255, 157, 0.3); background-color: #fff; width: 100%; max-width: 256px; height: auto; }
+        .header { text-align: center; margin-bottom: 20px; }
+        h1 { font-size: 48px; color: #00ff9d; text-shadow: 0 0 10px rgba(0, 255, 157, 0.5); }
+        .wallet-info { margin: 10px 0; font-size: 16px; }
+        .mint-status { font-size: 14px; color: #00ff9d; }
+        .controls { margin: 20px 0; display: flex; flex-wrap: nowrap; gap: 10px; width: 100%; max-width: 1200px; overflow-x: auto; }
+        .control-group { display: flex; flex-direction: column; align-items: center; min-width: 140px; }
+        label { margin-bottom: 5px; font-weight: bold; font-size: 14px; color: #00ff9d; }
+        .layer-value { margin-bottom: 5px; font-size: 12px; text-align: center; color: #fff; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cycle-buttons { display: flex; gap: 5px; }
+        .cycle-btn { padding: 5px 10px; font-size: 12px; background: linear-gradient(45deg, #00ff9d, #00cc7a); color: #1a1a1a; border: none; border-radius: 5px; cursor: pointer; transition: transform 0.2s; }
+        .cycle-btn:hover { transform: scale(1.05); }
+        select { margin-top: 5px; padding: 5px; font-size: 12px; width: 100%; border-radius: 5px; background: #333; color: #fff; border: 1px solid #00ff9d; }
+        .action-buttons { display: flex; gap: 15px; margin: 20px 0; }
+        .action-btn { padding: 10px 20px; font-size: 16px; background: linear-gradient(45deg, #00ff9d, #00cc7a); color: #1a1a1a; border: none; border-radius: 10px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .action-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 255, 157, 0.7); }
+        .action-btn:disabled { background: #666; cursor: not-allowed; }
+        .action-btn.loading { opacity: 0.7; pointer-events: none; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); justify-content: center; align-items: center; }
+        .modal-content { background: #2d2d2d; padding: 20px; border-radius: 15px; text-align: center; color: #fff; max-width: 350px; border: 2px solid #00ff9d; box-shadow: 0 0 20px rgba(0, 255, 157, 0.5); }
+        .modal-content p { margin-bottom: 15px; font-size: 18px; }
+        .modal-content button { padding: 10px 20px; background: #00ff9d; color: #1a1a1a; border: none; border-radius: 10px; cursor: pointer; }
+        .nft-viewer { margin-top: 30px; width: 100%; max-width: 800px; }
+        .nft-viewer h2 { font-size: 32px; color: #00ff9d; text-align: center; }
+        #nftList { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; justify-content: center; }
+        .nft-card { text-align: center; background: #333; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 255, 157, 0.2); }
+        .nft-card img { width: 100%; border-radius: 5px; }
+        .nft-card p { font-size: 14px; margin: 5px 0; }
+        .nft-card input { width: 100%; padding: 5px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #00ff9d; background: #1a1a1a; color: #fff; }
         @media (max-width: 768px) {
             h1 { font-size: 32px; }
             .controls { flex-wrap: wrap; gap: 8px; }
@@ -231,14 +67,7 @@
                 <button class="cycle-btn" onclick="cycleLayer('Background', 1)">Next</button>
             </div>
             <select id="backgroundSelect" onchange="selectLayer('Background')">
-                <option value="0">Cool Gray</option>
-                <option value="1">Dark Blue</option>
-                <option value="2">Dark Purple</option>
-                <option value="3">Off White A</option>
-                <option value="4">Off White B</option>
-                <option value="5">Off White C</option>
-                <option value="6">Off White D</option>
-                <option value="7">Red</option>
+                <option value="0">Cool Gray</option><option value="1">Dark Blue</option><option value="2">Dark Purple</option><option value="3">Off White A</option><option value="4">Off White B</option><option value="5">Off White C</option><option value="6">Off White D</option><option value="7">Red</option>
             </select>
         </div>
         <div class="control-group">
@@ -249,25 +78,7 @@
                 <button class="cycle-btn" onclick="cycleLayer('Fur', 1)">Next</button>
             </div>
             <select id="furSelect" onchange="selectLayer('Fur')">
-                <option value="0">Black</option>
-                <option value="1">Blue</option>
-                <option value="2">Brown</option>
-                <option value="3">Cheetah</option>
-                <option value="4">Cream</option>
-                <option value="5">Dark Brown</option>
-                <option value="6">Death Bot</option>
-                <option value="7">DMT</option>
-                <option value="8">Golden Brown</option>
-                <option value="9">Gray</option>
-                <option value="10">Noise</option>
-                <option value="11">Pink</option>
-                <option value="12">Red</option>
-                <option value="13">Robot</option>
-                <option value="14">Solid Gold</option>
-                <option value="15">Tan</option>
-                <option value="16">Trippy</option>
-                <option value="17">White</option>
-                <option value="18">Zombie</option>
+                <option value="0">Black</option><option value="1">Blue</option><option value="2">Brown</option><option value="3">Cheetah</option><option value="4">Cream</option><option value="5">Dark Brown</option><option value="6">Death Bot</option><option value="7">DMT</option><option value="8">Golden Brown</option><option value="9">Gray</option><option value="10">Noise</option><option value="11">Pink</option><option value="12">Red</option><option value="13">Robot</option><option value="14">Solid Gold</option><option value="15">Tan</option><option value="16">Trippy</option><option value="17">White</option><option value="18">Zombie</option>
             </select>
         </div>
         <div class="control-group">
@@ -278,50 +89,7 @@
                 <button class="cycle-btn" onclick="cycleLayer('Clothes', 1)">Next</button>
             </div>
             <select id="clothesSelect" onchange="selectLayer('Clothes')">
-                <option value="0">None</option>
-                <option value="1">Admirals Coat</option>
-                <option value="2">Bandolier</option>
-                <option value="3">Bayc T Black</option>
-                <option value="4">Bayc T Red</option>
-                <option value="5">Biker Vest</option>
-                <option value="6">Black Holes T</option>
-                <option value="7">Black Suit</option>
-                <option value="8">Black T</option>
-                <option value="9">Blue Dress</option>
-                <option value="10">Bone Necklace</option>
-                <option value="11">Bone Tee</option>
-                <option value="12">Caveman Pelt</option>
-                <option value="13">Cowboy Shirt</option>
-                <option value="14">Guayabera</option>
-                <option value="15">Hawaiian</option>
-                <option value="16">Hip Hop</option>
-                <option value="17">Kings Robe</option>
-                <option value="18">Lab Coat</option>
-                <option value="19">Leather Jacket</option>
-                <option value="20">Leather Punk Jacket</option>
-                <option value="21">Lumberjack Shirt</option>
-                <option value="22">Navy Striped Tee</option>
-                <option value="23">Pimp Coat</option>
-                <option value="24">Prison Jumpsuit</option>
-                <option value="25">Prom Dress</option>
-                <option value="26">Puffy Vest</option>
-                <option value="27">Rainbow Suspenders</option>
-                <option value="28">Sailor Shirt</option>
-                <option value="29">Service</option>
-                <option value="30">Sleeveless Logo T</option>
-                <option value="31">Sleeveless T</option>
-                <option value="32">Smoking Jacket</option>
-                <option value="33">Space suit</option>
-                <option value="34">Striped Tee</option>
-                <option value="35">Stunt Jacket</option>
-                <option value="36">Tanktop</option>
-                <option value="37">Tie Dye</option>
-                <option value="38">Toga</option>
-                <option value="39">Tuxedo Tee</option>
-                <option value="40">Tweed Suit</option>
-                <option value="41">Vietnam Jacket</option>
-                <option value="42">Wool Turtleneck</option>
-                <option value="43">Work Vest</option>
+                <option value="0">None</option><option value="1">Admirals Coat</option><option value="2">Bandolier</option><option value="3">Bayc T Black</option><option value="4">Bayc T Red</option><option value="5">Biker Vest</option><option value="6">Black Holes T</option><option value="7">Black Suit</option><option value="8">Black T</option><option value="9">Blue Dress</option><option value="10">Bone Necklace</option><option value="11">Bone Tee</option><option value="12">Caveman Pelt</option><option value="13">Cowboy Shirt</option><option value="14">Guayabera</option><option value="15">Hawaiian</option><option value="16">Hip Hop</option><option value="17">Kings Robe</option><option value="18">Lab Coat</option><option value="19">Leather Jacket</option><option value="20">Leather Punk Jacket</option><option value="21">Lumberjack Shirt</option><option value="22">Navy Striped Tee</option><option value="23">Pimp Coat</option><option value="24">Prison Jumpsuit</option><option value="25">Prom Dress</option><option value="26">Puffy Vest</option><option value="27">Rainbow Suspenders</option><option value="28">Sailor Shirt</option><option value="29">Service</option><option value="30">Sleeveless Logo T</option><option value="31">Sleeveless T</option><option value="32">Smoking Jacket</option><option value="33">Space suit</option><option value="34">Striped Tee</option><option value="35">Stunt Jacket</option><option value="36">Tanktop</option><option value="37">Tie Dye</option><option value="38">Toga</option><option value="39">Tuxedo Tee</option><option value="40">Tweed Suit</option><option value="41">Vietnam Jacket</option><option value="42">Wool Turtleneck</option><option value="43">Work Vest</option>
             </select>
         </div>
         <div class="control-group">
@@ -332,29 +100,7 @@
                 <button class="cycle-btn" onclick="cycleLayer('Eyes', 1)">Next</button>
             </div>
             <select id="eyesSelect" onchange="selectLayer('Eyes')">
-                <option value="0">3D</option>
-                <option value="1">Angry</option>
-                <option value="2">Blindfold</option>
-                <option value="3">Bloodshot</option>
-                <option value="4">Blue Beams</option>
-                <option value="5">Bored</option>
-                <option value="6">Closed</option>
-                <option value="7">Coins</option>
-                <option value="8">Crazy</option>
-                <option value="9">Cyborg</option>
-                <option value="10">Eyepatch</option>
-                <option value="11">Heart</option>
-                <option value="12">Holographic</option>
-                <option value="13">Hypnotized</option>
-                <option value="14">Laser Eyes</option>
-                <option value="15">Robot</option>
-                <option value="16">Sad</option>
-                <option value="17">Scumbag</option>
-                <option value="18">Sleepy</option>
-                <option value="19">Sunglasses</option>
-                <option value="20">Wide Eyed</option>
-                <option value="21">X Eyes</option>
-                <option value="22">Zombie</option>
+                <option value="0">3D</option><option value="1">Angry</option><option value="2">Blindfold</option><option value="3">Bloodshot</option><option value="4">Blue Beams</option><option value="5">Bored</option><option value="6">Closed</option><option value="7">Coins</option><option value="8">Crazy</option><option value="9">Cyborg</option><option value="10">Eyepatch</option><option value="11">Heart</option><option value="12">Holographic</option><option value="13">Hypnotized</option><option value="14">Laser Eyes</option><option value="15">Robot</option><option value="16">Sad</option><option value="17">Scumbag</option><option value="18">Sleepy</option><option value="19">Sunglasses</option><option value="20">Wide Eyed</option><option value="21">X Eyes</option><option value="22">Zombie</option>
             </select>
         </div>
         <div class="control-group">
@@ -365,43 +111,7 @@
                 <button class="cycle-btn" onclick="cycleLayer('Hat', 1)">Next</button>
             </div>
             <select id="hatSelect" onchange="selectLayer('Hat')">
-                <option value="0">None</option>
-                <option value="1">Army Hat</option>
-                <option value="2">Baby's Bonnet</option>
-                <option value="3">Bandana Blue</option>
-                <option value="4">Bayc Flipped Brim</option>
-                <option value="5">Bayc Hat Black</option>
-                <option value="6">Bayc Hat Red</option>
-                <option value="7">Beanie</option>
-                <option value="8">Bowler</option>
-                <option value="9">Bunny Ears</option>
-                <option value="10">Commie Hat</option>
-                <option value="11">Cowboy Hat</option>
-                <option value="12">Faux Hawk</option>
-                <option value="13">Fez</option>
-                <option value="14">Fisherman's Hat</option>
-                <option value="15">Girl's Hair Pink</option>
-                <option value="16">Girl's Hair Short</option>
-                <option value="17">Halo</option>
-                <option value="18">Horns</option>
-                <option value="19">Irish Boho</option>
-                <option value="20">King's Crown</option>
-                <option value="21">Laurel Wreath</option>
-                <option value="22">Party Hat 1</option>
-                <option value="23">Party Hat 2</option>
-                <option value="24">Police Motorcycle Helmet</option>
-                <option value="25">Prussian Helmet</option>
-                <option value="26">S&m Hat</option>
-                <option value="27">Safari</option>
-                <option value="28">Sea Captain's Hat</option>
-                <option value="29">Seaman's Hat</option>
-                <option value="30">Short Mohawk</option>
-                <option value="31">Spinner Hat</option>
-                <option value="32">Stuntman Helmet</option>
-                <option value="33">Sushi Chef Headband</option>
-                <option value="34">Trippy Captain's Hat</option>
-                <option value="35">Vietnam Era Helmet</option>
-                <option value="36">Ww2 Pilot Helm</option>
+                <option value="0">None</option><option value="1">Army Hat</option><option value="2">Baby's Bonnet</option><option value="3">Bandana Blue</option><option value="4">Bayc Flipped Brim</option><option value="5">Bayc Hat Black</option><option value="6">Bayc Hat Red</option><option value="7">Beanie</option><option value="8">Bowler</option><option value="9">Bunny Ears</option><option value="10">Commie Hat</option><option value="11">Cowboy Hat</option><option value="12">Faux Hawk</option><option value="13">Fez</option><option value="14">Fisherman's Hat</option><option value="15">Girl's Hair Pink</option><option value="16">Girl's Hair Short</option><option value="17">Halo</option><option value="18">Horns</option><option value="19">Irish Boho</option><option value="20">King's Crown</option><option value="21">Laurel Wreath</option><option value="22">Party Hat 1</option><option value="23">Party Hat 2</option><option value="24">Police Motorcycle Helmet</option><option value="25">Prussian Helmet</option><option value="26">S&m Hat</option><option value="27">Safari</option><option value="28">Sea Captain's Hat</option><option value="29">Seaman's Hat</option><option value="30">Short Mohawk</option><option value="31">Spinner Hat</option><option value="32">Stuntman Helmet</option><option value="33">Sushi Chef Headband</option><option value="34">Trippy Captain's Hat</option><option value="35">Vietnam Era Helmet</option><option value="36">Ww2 Pilot Helm</option>
             </select>
         </div>
         <div class="control-group">
@@ -412,39 +122,7 @@
                 <button class="cycle-btn" onclick="cycleLayer('Mouth', 1)">Next</button>
             </div>
             <select id="mouthSelect" onchange="selectLayer('Mouth')">
-                <option value="0">Bored Bubblegum</option>
-                <option value="1">Bored Cigar</option>
-                <option value="2">Bored Cigarette</option>
-                <option value="3">Bored Dagger</option>
-                <option value="4">Bored Kazoo</option>
-                <option value="5">Bored Party Horn</option>
-                <option value="6">Bored Pipe</option>
-                <option value="7">Bored Pizza</option>
-                <option value="8">Bored Unshaven Bubblegum</option>
-                <option value="9">Bored Unshaven Cigar</option>
-                <option value="10">Bored Unshaven Cigarette</option>
-                <option value="11">Bored Unshaven Dagger</option>
-                <option value="12">Bored Unshaven Kazoo</option>
-                <option value="13">Bored Unshaven Party Horn</option>
-                <option value="14">Bored Unshaven Pipe</option>
-                <option value="15">Bored Unshaven Pizza</option>
-                <option value="16">Bored Unshaven</option>
-                <option value="17">Bored</option>
-                <option value="18">Discomfort</option>
-                <option value="19">Dumbfounded</option>
-                <option value="20">Grin Diamond Grill</option>
-                <option value="21">Grin Gold Grill</option>
-                <option value="22">Grin Multicolored</option>
-                <option value="23">Grin</option>
-                <option value="24">Jovial</option>
-                <option value="25">Phoneme L</option>
-                <option value="26">Phoneme Oh</option>
-                <option value="27">Phoneme ooo</option>
-                <option value="28">Phoneme Vuh</option>
-                <option value="29">Phoneme Wah</option>
-                <option value="30">Rage</option>
-                <option value="31">Small Grin</option>
-                <option value="32">Tongue Out</option>
+                <option value="0">Bored Bubblegum</option><option value="1">Bored Cigar</option><option value="2">Bored Cigarette</option><option value="3">Bored Dagger</option><option value="4">Bored Kazoo</option><option value="5">Bored Party Horn</option><option value="6">Bored Pipe</option><option value="7">Bored Pizza</option><option value="8">Bored Unshaven Bubblegum</option><option value="9">Bored Unshaven Cigar</option><option value="10">Bored Unshaven Cigarette</option><option value="11">Bored Unshaven Dagger</option><option value="12">Bored Unshaven Kazoo</option><option value="13">Bored Unshaven Party Horn</option><option value="14">Bored Unshaven Pipe</option><option value="15">Bored Unshaven Pizza</option><option value="16">Bored Unshaven</option><option value="17">Bored</option><option value="18">Discomfort</option><option value="19">Dumbfounded</option><option value="20">Grin Diamond Grill</option><option value="21">Grin Gold Grill</option><option value="22">Grin Multicolored</option><option value="23">Grin</option><option value="24">Jovial</option><option value="25">Phoneme L</option><option value="26">Phoneme Oh</option><option value="27">Phoneme ooo</option><option value="28">Phoneme Vuh</option><option value="29">Phoneme Wah</option><option value="30">Rage</option><option value="31">Small Grin</option><option value="32">Tongue Out</option>
             </select>
         </div>
         <div class="control-group">
@@ -455,13 +133,7 @@
                 <button class="cycle-btn" onclick="cycleLayer('Earring', 1)">Next</button>
             </div>
             <select id="earringSelect" onchange="selectLayer('Earring')">
-                <option value="0">None</option>
-                <option value="1">Cross</option>
-                <option value="2">Diamond Stud</option>
-                <option value="3">Gold Hoop</option>
-                <option value="4">Gold Stud</option>
-                <option value="5">Silver Hoop</option>
-                <option value="6">Silver Stud</option>
+                <option value="0">None</option><option value="1">Cross</option><option value="2">Diamond Stud</option><option value="3">Gold Hoop</option><option value="4">Gold Stud</option><option value="5">Silver Hoop</option><option value="6">Silver Stud</option>
             </select>
         </div>
     </div>
@@ -490,7 +162,7 @@
             Clothes: ["None", "Admirals Coat", "Bandolier", "Bayc T Black", "Bayc T Red", "Biker Vest", "Black Holes T", "Black Suit", "Black T", "Blue Dress", "Bone Necklace", "Bone Tee", "Caveman Pelt", "Cowboy Shirt", "Guayabera", "Hawaiian", "Hip Hop", "Kings Robe", "Lab Coat", "Leather Jacket", "Leather Punk Jacket", "Lumberjack Shirt", "Navy Striped Tee", "Pimp Coat", "Prison Jumpsuit", "Prom Dress", "Puffy Vest", "Rainbow Suspenders", "Sailor Shirt", "Service", "Sleeveless Logo T", "Sleeveless T", "Smoking Jacket", "Space suit", "Striped Tee", "Stunt Jacket", "Tanktop", "Tie Dye", "Toga", "Tuxedo Tee", "Tweed Suit", "Vietnam Jacket", "Wool Turtleneck", "Work Vest"],
             Eyes: ["3D", "Angry", "Blindfold", "Bloodshot", "Blue Beams", "Bored", "Closed", "Coins", "Crazy", "Cyborg", "Eyepatch", "Heart", "Holographic", "Hypnotized", "Laser Eyes", "Robot", "Sad", "Scumbag", "Sleepy", "Sunglasses", "Wide Eyed", "X Eyes", "Zombie"],
             Hat: ["None", "Army Hat", "Baby's Bonnet", "Bandana Blue", "Bayc Flipped Brim", "Bayc Hat Black", "Bayc Hat Red", "Beanie", "Bowler", "Bunny Ears", "Commie Hat", "Cowboy Hat", "Faux Hawk", "Fez", "Fisherman's Hat", "Girl's Hair Pink", "Girl's Hair Short", "Halo", "Horns", "Irish Boho", "King's Crown", "Laurel Wreath", "Party Hat 1", "Party Hat 2", "Police Motorcycle Helmet", "Prussian Helmet", "S&m Hat", "Safari", "Sea Captain's Hat", "Seaman's Hat", "Short Mohawk", "Spinner Hat", "Stuntman Helmet", "Sushi Chef Headband", "Trippy Captain's Hat", "Vietnam Era Helmet", "Ww2 Pilot Helm"],
-            Mouth: ["Bored Bubblegum", "Bored Cigar", "Bored Cigarette", "Bored Dagger", "Bored Kazoo", "Bored Party Horn", "Bored Pipe", "Bored Pizza", "Bored Unshaven Bubblegum", "Bored Unshaven Cigar", "Bored Unshaven Cigarette", "Bored Unshaven Dagger", "Bored Unshaven Kazoo", "Bored Unshaven Party Horn", "Bored Unshaven Pipe", "Bored Unshaven Pizza", "Bored Unshaven", "Bored", "Discomfort", "Dumbfounded", "Grin Diamond Grill", "Grin Gold Grill", "Grin Multicolored", "Grin", "Jovial", "Phoneme L", "Phoneme Oh", "Phoneme ooo", "Phoneme Vuh", "Phoneme Wah", "Rage", "Small Grin", "Tongue Out"],
+            Mouth: ["Bored Bubblegum", "Bored Cigar", "Bored Cigarette", "Bored FIRSTDagger", "Bored Kazoo", "Bored Party Horn", "Bored Pipe", "Bored Pizza", "Bored Unshaven Bubblegum", "Bored Unshaven Cigar", "Bored Unshaven Cigarette", "Bored Unshaven Dagger", "Bored Unshaven Kazoo", "Bored Unshaven Party Horn", "Bored Unshaven Pipe", "Bored Unshaven Pizza", "Bored Unshaven", "Bored", "Discomfort", "Dumbfounded", "Grin Diamond Grill", "Grin Gold Grill", "Grin Multicolored", "Grin", "Jovial", "Phoneme L", "Phoneme Oh", "Phoneme ooo", "Phoneme Vuh", "Phoneme Wah", "Rage", "Small Grin", "Tongue Out"],
             Earring: ["None", "Cross", "Diamond Stud", "Gold Hoop", "Gold Stud", "Silver Hoop", "Silver Stud"]
         };
         const layerOrder = ["Background", "Fur", "Clothes", "Eyes", "Hat", "Mouth", "Earring"];
@@ -548,7 +220,7 @@
                 web3 = new Web3(window.ethereum);
                 accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 if (!accounts.length) {
-                    showModal('Please unlock your wallet or connect it.');
+                    showModal('Please unlock or connect your wallet.');
                     return;
                 }
                 const chainId = await web3.eth.getChainId();
@@ -673,22 +345,22 @@
             try {
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
                 if (status[0] == 0) {
-                    showModal('铸造失败：你的地址不在白名单中。');
+                    showModal('Minting failed: Your address is not whitelisted.');
                     return;
                 }
                 if (status[0] == status[1]) {
-                    showModal('铸造失败：你已达到铸造上限（10个）。');
+                    showModal('Minting failed: You’ve reached your minting limit (10).');
                     return;
                 }
                 const totalSupply = await contract.methods.totalSupply().call();
                 if (totalSupply >= 100000) {
-                    showModal('铸造失败：NFT 总供应量已达上限（100,000）。');
+                    showModal('Minting failed: Total NFT supply limit (100,000) reached.');
                     return;
                 }
                 const imageData = canvas.toDataURL("image/png", 0.1).split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 if (attributes.length !== 7) {
-                    showModal('铸造失败：属性数量错误，必须为7个。');
+                    showModal('Minting failed: Incorrect number of attributes, must be 7.');
                     return;
                 }
                 const metadata = {
@@ -698,26 +370,19 @@
                     attributes: attributes.map((val, i) => ({ trait_type: layerOrder[i], value: val }))
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
-                showModal('正在铸造 NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 3000000 });
-                showModal('NFT 铸造成功！');
+                showModal('Minting NFT...');
+                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 20000000 });
+                showModal('NFT minted successfully!');
                 updateWalletInfo();
                 fetchOwnedNFTs();
             } catch (error) {
-                let reason = '铸造失败：未知错误 - ' + error.message;
-                if (error.message.includes("Not whitelisted")) {
-                    reason = '铸造失败：你的地址不在白名单中。';
-                } else if (error.message.includes("Attribute combination already used")) {
-                    reason = '铸造失败：此属性组合已被使用，请尝试其他组合。';
-                } else if (error.message.includes("Invalid attributes length")) {
-                    reason = '铸造失败：属性数量错误，必须为7个。';
-                } else if (error.message.includes("Max supply reached")) {
-                    reason = '铸造失败：NFT 总供应量已达上限（100,000）。';
-                } else if (error.message.includes("Minting limit reached")) {
-                    reason = '铸造失败：你已达到铸造上限（10个）。';
-                } else if (error.code === -32603 || error.message.includes("reverted")) {
-                    reason = '铸造失败：交易被 EVM 回滚，可能由于 gas 不足或属性重复。';
-                }
+                let reason = 'Minting failed: Unknown error - ' + error.message;
+                if (error.message.includes("Not whitelisted")) reason = 'Minting failed: Your address is not whitelisted.';
+                else if (error.message.includes("Attribute combination already used")) reason = 'Minting failed: This attribute combination is already used.';
+                else if (error.message.includes("Invalid attributes length")) reason = 'Minting failed: Incorrect number of attributes, must be 7.';
+                else if (error.message.includes("Max supply reached")) reason = 'Minting failed: Total NFT supply limit (100,000) reached.';
+                else if (error.message.includes("Minting limit reached")) reason = 'Minting failed: You’ve reached your minting limit (10).';
+                else if (error.code === -32603 || error.message.includes("reverted")) reason = 'Minting failed: Transaction reverted by EVM, possibly due to insufficient gas.';
                 showModal(reason);
             } finally {
                 mintButton.classList.remove('loading');
@@ -782,36 +447,23 @@
         }
 
         window.onload = () => {
-            for (const layer of layerOrder) {
-                updateLayerValue(layer);
-            }
+            for (const layer of layerOrder) updateLayerValue(layer);
             updateNFT();
-            if (!window.ethereum) {
-                showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
-            }
+            if (!window.ethereum) showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
         };
 
         window.ethereum?.on('chainChanged', (chainId) => {
             if (parseInt(chainId, 16) !== 109) {
                 showModal('Switched to wrong network. Please reconnect to Shibarium.');
-                web3 = null;
-                contract = null;
-                accounts = null;
-                updateWalletInfo();
-            } else {
-                connectWallet();
-            }
+                web3 = null; contract = null; accounts = null; updateWalletInfo();
+            } else connectWallet();
         });
 
         window.ethereum?.on('accountsChanged', (newAccounts) => {
-            if (newAccounts.length) {
-                connectWallet();
-            } else {
+            if (newAccounts.length) connectWallet();
+            else {
                 showModal('Wallet disconnected. Please reconnect.');
-                web3 = null;
-                contract = null;
-                accounts = null;
-                updateWalletInfo();
+                web3 = null; contract = null; accounts = null; updateWalletInfo();
             }
         });
 
