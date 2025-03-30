@@ -290,6 +290,25 @@
             link.click();
         }
 
+        async function pixelateImage(sourceCanvas) {
+            const pixelCanvas = document.createElement('canvas');
+            pixelCanvas.width = 50;
+            pixelCanvas.height = 50;
+            const pixelCtx = pixelCanvas.getContext('2d');
+            pixelCtx.imageSmoothingEnabled = false;
+            pixelCtx.drawImage(sourceCanvas, 0, 0, 50, 50);
+            const imageData = pixelCtx.getImageData(0, 0, 50, 50);
+            const data = imageData.data;
+            for (let y = 0; y < 50; y++) {
+                for (let x = 0; x < 50; x++) {
+                    const i = (y * 50 + x) * 4;
+                    pixelCtx.fillStyle = `rgba(${data[i]}, ${data[i+1]}, ${data[i+2]}, ${data[i+3]/255})`;
+                    pixelCtx.fillRect(x, y, 1, 1);
+                }
+            }
+            return pixelCanvas.toDataURL('image/png', 1.0);
+        }
+
         async function mintNFT() {
             if (!web3 || !contract || !accounts) {
                 showModal('Please connect your wallet first!');
@@ -330,10 +349,11 @@
                 }
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 const tokenId = totalSupply;
+                const pixelatedImage = await pixelateImage(canvas);
                 const metadata = {
                     name: `Bored Ape Shib Club #${tokenId}`,
                     description: "A unique Bored Ape Shib Club NFT",
-                    image: `https://shibarium.fun/BoredApeShibClub/${tokenId}.png`,
+                    image: pixelatedImage,
                     attributes: attributes.map((val, i) => ({ trait_type: layerOrder[i], value: val }))
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
