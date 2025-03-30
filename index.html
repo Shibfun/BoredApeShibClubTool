@@ -22,7 +22,7 @@
             box-shadow: 0 8px 20px rgba(0, 255, 157, 0.3);
             background-color: #fff;
             width: 100%;
-            max-width: 500px;
+            max-width: 256px;
             height: auto;
         }
         .header {
@@ -201,36 +201,15 @@
             color: #fff;
         }
         @media (max-width: 768px) {
-            h1 {
-                font-size: 32px;
-            }
-            .controls {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-            .control-group {
-                min-width: 110px;
-            }
-            label {
-                font-size: 12px;
-            }
-            .layer-value {
-                font-size: 10px;
-            }
-            .cycle-btn, select {
-                font-size: 10px;
-                padding: 3px 6px;
-            }
-            .action-btn {
-                padding: 8px 16px;
-                font-size: 14px;
-            }
-            .wallet-info, .mint-status {
-                font-size: 14px;
-            }
-            .modal-content {
-                max-width: 90%;
-            }
+            h1 { font-size: 32px; }
+            .controls { flex-wrap: wrap; gap: 8px; }
+            .control-group { min-width: 110px; }
+            label { font-size: 12px; }
+            .layer-value { font-size: 10px; }
+            .cycle-btn, select { font-size: 10px; padding: 3px 6px; }
+            .action-btn { padding: 8px 16px; font-size: 14px; }
+            .wallet-info, .mint-status { font-size: 14px; }
+            .modal-content { max-width: 90%; }
         }
     </style>
 </head>
@@ -486,7 +465,7 @@
             </select>
         </div>
     </div>
-    <canvas id="nftCanvas" width="500" height="500"></canvas>
+    <canvas id="nftCanvas" width="256" height="256"></canvas>
     <div class="action-buttons">
         <button id="randomizeBtn" class="action-btn" onclick="randomizeNFT()">Randomize</button>
         <button id="downloadBtn" class="action-btn" onclick="downloadNFT()">Download PNG</button>
@@ -514,33 +493,20 @@
             Mouth: ["Bored Bubblegum", "Bored Cigar", "Bored Cigarette", "Bored Dagger", "Bored Kazoo", "Bored Party Horn", "Bored Pipe", "Bored Pizza", "Bored Unshaven Bubblegum", "Bored Unshaven Cigar", "Bored Unshaven Cigarette", "Bored Unshaven Dagger", "Bored Unshaven Kazoo", "Bored Unshaven Party Horn", "Bored Unshaven Pipe", "Bored Unshaven Pizza", "Bored Unshaven", "Bored", "Discomfort", "Dumbfounded", "Grin Diamond Grill", "Grin Gold Grill", "Grin Multicolored", "Grin", "Jovial", "Phoneme L", "Phoneme Oh", "Phoneme ooo", "Phoneme Vuh", "Phoneme Wah", "Rage", "Small Grin", "Tongue Out"],
             Earring: ["None", "Cross", "Diamond Stud", "Gold Hoop", "Gold Stud", "Silver Hoop", "Silver Stud"]
         };
-
         const layerOrder = ["Background", "Fur", "Clothes", "Eyes", "Hat", "Mouth", "Earring"];
-        const currentIndices = {
-            Background: 0,
-            Fur: 0,
-            Clothes: 0,
-            Eyes: 0,
-            Hat: 0,
-            Mouth: 0,
-            Earring: 0
-        };
-
+        const currentIndices = { Background: 0, Fur: 0, Clothes: 0, Eyes: 0, Hat: 0, Mouth: 0, Earring: 0 };
         const canvas = document.getElementById("nftCanvas");
         const ctx = canvas.getContext("2d");
-
         let web3, accounts, contract;
-        const CONTRACT_ADDRESS = "0x9d8eE62EbA3954eA0a7f53FA417FD5125786Ec00";
-
+        const CONTRACT_ADDRESS = "0xB5862E774f718A0Ad39b6855a11B08c5127b1c5e";
         const CONTRACT_ABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"batchAddToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"},{"internalType":"uint256","name":"remaining","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -554,7 +520,6 @@
             {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
         ];
-
         const shibariumMainnet = {
             chainId: 109,
             chainName: 'Shibarium',
@@ -625,11 +590,8 @@
                 const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
                 document.getElementById('walletAddress').innerText = shortAddress;
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
-                const maxAllowed = status[0];
-                const minted = status[1];
-                const remaining = status[2];
-                document.getElementById('mintStatus').innerText = `${minted}/${maxAllowed}`;
-                document.getElementById('mintBtn').disabled = (remaining == 0);
+                document.getElementById('mintStatus').innerText = `${status[1]}/${status[0]}`;
+                document.getElementById('mintBtn').disabled = (status[0] == status[1]);
             }
         }
 
@@ -644,7 +606,7 @@
                 const img = new Image();
                 img.src = `images/${layerName}/${layerValue}.png`;
                 img.onload = () => {
-                    ctx.drawImage(img, 0, 0, 500, 500);
+                    ctx.drawImage(img, 0, 0, 256, 256);
                     resolve();
                 };
                 img.onerror = () => resolve();
@@ -654,8 +616,7 @@
         async function updateNFT() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (const layer of layerOrder) {
-                const layerValue = layers[layer][currentIndices[layer]];
-                await drawLayer(layer, layerValue);
+                await drawLayer(layer, layers[layer][currentIndices[layer]]);
             }
         }
 
@@ -682,7 +643,7 @@
         function downloadNFT() {
             const link = document.createElement("a");
             link.download = "nft-custom.png";
-            link.href = canvas.toDataURL("image/png");
+            link.href = canvas.toDataURL("image/png", 0.3);
             link.click();
         }
 
@@ -711,22 +672,18 @@
             const mintButton = document.getElementById('mintBtn');
             try {
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
-                const remaining = status[2];
-                if (remaining == 0) {
+                if (status[0] == status[1]) {
                     showModal('You have reached your minting limit!');
                     return;
                 }
-                const imageData = canvas.toDataURL("image/png", 0.5).split(',')[1];
+                const imageData = canvas.toDataURL("image/png", 0.3).split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 const totalSupply = await contract.methods.totalSupply().call();
                 const metadata = {
                     name: `Bored Ape Shib Club #${totalSupply}`,
                     description: "A unique Bored Ape Shib Club NFT",
                     image: `data:image/png;base64,${imageData}`,
-                    attributes: attributes.map((val, i) => ({
-                        trait_type: layerOrder[i],
-                        value: val
-                    }))
+                    attributes: attributes.map((val, i) => ({ trait_type: layerOrder[i], value: val }))
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
                 showModal('Minting NFT...');
@@ -735,7 +692,7 @@
                 updateWalletInfo();
                 fetchOwnedNFTs();
             } catch (error) {
-                if (error.message.includes("Not in whitelist")) {
+                if (error.message.includes("Not whitelisted")) {
                     showModal('Minting failed: Your address is not in the whitelist.');
                 } else if (error.message.includes("Attribute combination already used")) {
                     showModal('Minting failed: This attribute combination has already been used.');
