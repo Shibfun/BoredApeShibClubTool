@@ -146,7 +146,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script>
-        let web3, accounts, contract, isOwner = false;
+        let web3, accounts, contract;
+        let isOwner = false;
         const CONTRACT_ADDRESS = "0x9d8eE62EbA3954eA0a7f53FA417FD5125786Ec00";
 
         const CONTRACT_ABI = [
@@ -196,41 +197,47 @@
                 return;
             }
             connectButton.classList.add('loading');
-            web3 = new Web3(window.ethereum);
-            accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            if (!accounts.length) {
-                showModal('Please unlock your wallet or connect it.');
-                return;
-            }
-            const chainId = await web3.eth.getChainId();
-            if (chainId !== 109) {
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: web3.utils.numberToHex(109) }]
-                    });
-                } catch (switchError) {
-                    if (switchError.code === 4902) {
+            try {
+                web3 = new Web3(window.ethereum);
+                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                if (!accounts.length) {
+                    showModal('Please unlock your wallet or connect it.');
+                    return;
+                }
+                const chainId = await web3.eth.getChainId();
+                if (chainId !== 109) {
+                    try {
                         await window.ethereum.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [shibariumMainnet]
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: web3.utils.numberToHex(109) }]
                         });
-                    } else {
-                        showModal('Failed to switch network. Please add Shibarium manually.');
-                        return;
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [shibariumMainnet]
+                            });
+                        } else {
+                            showModal('Failed to switch network. Please add Shibarium manually.');
+                            return;
+                        }
                     }
                 }
+                contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+                await updateWalletInfo();
+                showModal('Connected to Shibarium successfully!');
+            } catch (error) {
+                showModal('Connection failed: ' + error.message);
+            } finally {
+                connectButton.classList.remove('loading');
             }
-            contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-            showModal('Connected to Shibarium successfully!');
-            updateWalletInfo();
-            connectButton.classList.remove('loading');
         }
 
         async function updateWalletInfo() {
             const addButton = document.getElementById('addToWhitelistBtn');
-            if (!accounts) {
+            if (!accounts || accounts.length === 0) {
                 document.getElementById('walletAddress').innerText = 'Not connected';
+                isOwner = false;
                 addButton.disabled = true;
                 return;
             }
@@ -247,6 +254,7 @@
                 }
             } catch (error) {
                 showModal('Failed to verify owner: ' + error.message);
+                isOwner = false;
                 addButton.disabled = true;
             }
         }
@@ -259,14 +267,12 @@
                 return;
             }
             const addresses = addressesInput.split('\n').map(addr => addr.trim()).filter(addr => addr);
-            let allValid = true;
-            for (const addr of addresses) {
-                if (!web3.utils.isAddress(addr)) {
-                    allValid = false;
-                    break;
-                }
+            if (addresses.length === 0) {
+                addButton.disabled = true;
+                return;
             }
-            addButton.disabled = !allValid || addresses.length === 0;
+            const allValid = addresses.every(addr => web3.utils.isAddress(addr));
+            addButton.disabled = !allValid;
         }
 
         async function addToWhitelist() {
@@ -284,6 +290,10 @@
                     return;
                 }
                 const addresses = addressesInput.split('\n').map(addr => addr.trim()).filter(addr => addr);
+                if (addresses.length === 0) {
+                    showModal('No valid addresses provided!');
+                    return;
+                }
                 const validAddresses = [];
                 for (const addr of addresses) {
                     if (web3.utils.isAddress(addr)) {
@@ -292,10 +302,6 @@
                         showModal(`Invalid address detected: ${addr}`);
                         return;
                     }
-                }
-                if (validAddresses.length === 0) {
-                    showModal('No valid addresses provided!');
-                    return;
                 }
                 showModal('Adding addresses to whitelist...');
                 await contract.methods.addToWhitelist(validAddresses).send({ from: accounts[0] });
@@ -322,6 +328,7 @@
                 web3 = null;
                 contract = null;
                 accounts = null;
+                isOwner = false;
                 updateWalletInfo();
             } else {
                 connectWallet();
@@ -336,6 +343,7 @@
                 web3 = null;
                 contract = null;
                 accounts = null;
+                isOwner = false;
                 updateWalletInfo();
             }
         });
