@@ -672,13 +672,25 @@
             const mintButton = document.getElementById('mintBtn');
             try {
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
+                if (status[0] == 0) {
+                    showModal('铸造失败：你的地址不在白名单中。');
+                    return;
+                }
                 if (status[0] == status[1]) {
-                    showModal('You have reached your minting limit!');
+                    showModal('铸造失败：你已达到铸造上限（10个）。');
+                    return;
+                }
+                const totalSupply = await contract.methods.totalSupply().call();
+                if (totalSupply >= 100000) {
+                    showModal('铸造失败：NFT 总供应量已达上限（100,000）。');
                     return;
                 }
                 const imageData = canvas.toDataURL("image/png", 0.1).split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
-                const totalSupply = await contract.methods.totalSupply().call();
+                if (attributes.length !== 7) {
+                    showModal('铸造失败：属性数量错误，必须为7个。');
+                    return;
+                }
                 const metadata = {
                     name: `Bored Ape Shib Club #${totalSupply}`,
                     description: "A unique Bored Ape Shib Club NFT",
@@ -686,25 +698,27 @@
                     attributes: attributes.map((val, i) => ({ trait_type: layerOrder[i], value: val }))
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
-                showModal('Minting NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 2000000 });
-                showModal('NFT minted successfully!');
+                showModal('正在铸造 NFT...');
+                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 3000000 });
+                showModal('NFT 铸造成功！');
                 updateWalletInfo();
                 fetchOwnedNFTs();
             } catch (error) {
+                let reason = '铸造失败：未知错误 - ' + error.message;
                 if (error.message.includes("Not whitelisted")) {
-                    showModal('Minting failed: Your address is not in the whitelist.');
+                    reason = '铸造失败：你的地址不在白名单中。';
                 } else if (error.message.includes("Attribute combination already used")) {
-                    showModal('Minting failed: This attribute combination has already been used.');
+                    reason = '铸造失败：此属性组合已被使用，请尝试其他组合。';
                 } else if (error.message.includes("Invalid attributes length")) {
-                    showModal('Minting failed: Invalid number of attributes (must be 7).');
+                    reason = '铸造失败：属性数量错误，必须为7个。';
                 } else if (error.message.includes("Max supply reached")) {
-                    showModal('Minting failed: Maximum supply reached.');
+                    reason = '铸造失败：NFT 总供应量已达上限（100,000）。';
                 } else if (error.message.includes("Minting limit reached")) {
-                    showModal('Minting failed: You have reached your minting limit.');
-                } else {
-                    showModal('Minting failed: ' + error.message);
+                    reason = '铸造失败：你已达到铸造上限（10个）。';
+                } else if (error.code === -32603 || error.message.includes("reverted")) {
+                    reason = '铸造失败：交易被 EVM 回滚，可能由于 gas 不足或属性重复。';
                 }
+                showModal(reason);
             } finally {
                 mintButton.classList.remove('loading');
                 mintButton.disabled = false;
