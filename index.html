@@ -31,12 +31,13 @@
         .modal-content button { padding: 10px 20px; background: #00ff9d; color: #1a1a1a; border: none; border-radius: 10px; cursor: pointer; }
         .nft-viewer { margin-top: 30px; width: 100%; max-width: 800px; }
         .nft-viewer h2 { font-size: 32px; color: #00ff9d; text-align: center; }
-        #nftList { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; justify-content: center; }
-        .nft-card { text-align: center; background: #333; padding: 8px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 255, 157, 0.2); }
-        .nft-card img { width: 100%; max-width: 120px; height: auto; border-radius: 5px; }
-        .nft-card p { font-size: 12px; margin: 5px 0; }
-        .nft-card input { width: 100%; padding: 4px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #00ff9d; background: #1a1a1a; color: #fff; font-size: 10px; }
-        .nft-card .action-btn { padding: 6px 12px; font-size: 12px; }
+        #nftList { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; justify-content: center; }
+        .nft-card { text-align: center; background: #333; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 255, 157, 0.2); display: flex; flex-direction: column; align-items: center; }
+        .nft-card img { width: 100%; max-width: 150px; height: auto; border-radius: 5px; }
+        .nft-card p { font-size: 14px; margin: 5px 0; }
+        .nft-card input { width: 100%; padding: 5px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #00ff9d; background: #1a1a1a; color: #fff; font-size: 12px; }
+        .nft-card .button-group { display: flex; gap: 5px; width: 100%; justify-content: center; }
+        .nft-card .action-btn { padding: 6px 12px; font-size: 12px; flex: 1; }
         @media (max-width: 768px) {
             h1 { font-size: 32px; }
             .controls { flex-wrap: wrap; gap: 8px; }
@@ -48,11 +49,11 @@
             .wallet-info, .mint-status { font-size: 14px; }
             .modal-content { max-width: 90%; padding: 15px; }
             .nft-viewer h2 { font-size: 24px; }
-            #nftList { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
-            .nft-card { padding: 6px; }
-            .nft-card img { max-width: 100px; }
-            .nft-card p { font-size: 10px; }
-            .nft-card input { padding: 3px; font-size: 9px; }
+            #nftList { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .nft-card { padding: 8px; }
+            .nft-card img { max-width: 120px; }
+            .nft-card p { font-size: 12px; }
+            .nft-card input { padding: 4px; font-size: 10px; }
             .nft-card .action-btn { padding: 5px 10px; font-size: 10px; }
         }
     </style>
@@ -384,24 +385,39 @@
             } else {
                 metadata = { name: `Token #${tokenId}`, attributes: [] };
             }
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 150;
-            tempCanvas.height = 150;
-            const tempCtx = tempCanvas.getContext('2d');
+            const previewCanvas = document.createElement('canvas');
+            previewCanvas.width = 150;
+            previewCanvas.height = 150;
+            const previewCtx = previewCanvas.getContext('2d');
+            const fullCanvas = document.createElement('canvas');
+            fullCanvas.width = 512;
+            fullCanvas.height = 512;
+            const fullCtx = fullCanvas.getContext('2d');
             for (const attr of metadata.attributes) {
                 const layerName = attr.trait_type;
                 const layerValue = attr.value;
-                await drawLayer(layerName, layerValue, tempCtx, 150);
+                await drawLayer(layerName, layerValue, previewCtx, 150);
+                await drawLayer(layerName, layerValue, fullCtx, 512);
             }
             const nftDiv = document.createElement('div');
             nftDiv.className = 'nft-card';
             nftDiv.innerHTML = `
-                <img src="${tempCanvas.toDataURL('image/png', 1.0)}" alt="${metadata.name}">
+                <img src="${previewCanvas.toDataURL('image/png', 1.0)}" alt="${metadata.name}">
                 <p>${metadata.name} (ID: ${tokenId})</p>
                 <input type="text" id="transferAddress${tokenId}" placeholder="Recipient Address">
-                <button class="action-btn" onclick="transferNFT(${tokenId})">Transfer</button>
+                <div class="button-group">
+                    <button class="action-btn" onclick="transferNFT(${tokenId})">Transfer</button>
+                    <button class="action-btn" onclick="downloadFullNFT('${fullCanvas.toDataURL('image/png', 1.0)}', ${tokenId})">Download</button>
+                </div>
             `;
             nftList.appendChild(nftDiv);
+        }
+
+        function downloadFullNFT(dataURL, tokenId) {
+            const link = document.createElement("a");
+            link.download = `BoredApeShibClub_${tokenId}.png`;
+            link.href = dataURL;
+            link.click();
         }
 
         async function transferNFT(tokenId) {
