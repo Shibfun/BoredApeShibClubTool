@@ -643,7 +643,7 @@
         function downloadNFT() {
             const link = document.createElement("a");
             link.download = "nft-custom.png";
-            link.href = canvas.toDataURL("image/png", 0.3);
+            link.href = canvas.toDataURL("image/png", 0.1);
             link.click();
         }
 
@@ -676,7 +676,7 @@
                     showModal('You have reached your minting limit!');
                     return;
                 }
-                const imageData = canvas.toDataURL("image/png", 0.3).split(',')[1];
+                const imageData = canvas.toDataURL("image/png", 0.1).split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 const totalSupply = await contract.methods.totalSupply().call();
                 const metadata = {
@@ -687,7 +687,7 @@
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
                 showModal('Minting NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 1000000 });
+                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 2000000 });
                 showModal('NFT minted successfully!');
                 updateWalletInfo();
                 fetchOwnedNFTs();
