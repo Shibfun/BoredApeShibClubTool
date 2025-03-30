@@ -148,18 +148,16 @@
     <script>
         let web3, accounts, contract;
         let isOwner = false;
-        const CONTRACT_ADDRESS = "0x9d8eE62EbA3954eA0a7f53FA417FD5125786Ec00";
-
+        const CONTRACT_ADDRESS = "0x8CbCfF7f9Ef9d16A50A04a787A609189DA8FddA5";
         const CONTRACT_ABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"},{"internalType":"uint256","name":"remaining","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -167,7 +165,7 @@
             {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"tokenOwner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
@@ -218,7 +216,7 @@
                                 params: [shibariumMainnet]
                             });
                         } else {
-                            showModal('Failed to switch network. Please add Shibarium manually.');
+                            showModal('Failed to switch network. Please switch to Shibarium manually.');
                             return;
                         }
                     }
@@ -235,7 +233,7 @@
 
         async function updateWalletInfo() {
             const addButton = document.getElementById('addToWhitelistBtn');
-            if (!accounts || accounts.length === 0) {
+            if (!accounts || !accounts.length) {
                 document.getElementById('walletAddress').innerText = 'Not connected';
                 isOwner = false;
                 addButton.disabled = true;
@@ -246,11 +244,9 @@
             try {
                 const owner = await contract.methods.contractOwner().call();
                 isOwner = owner.toLowerCase() === accounts[0].toLowerCase();
+                addButton.disabled = !isOwner || !document.getElementById('whitelistAddresses').value.trim();
                 if (!isOwner) {
                     showModal('You are not the contract owner!');
-                    addButton.disabled = true;
-                } else {
-                    checkAddressesInput(); // Check if there are valid addresses to enable the button
                 }
             } catch (error) {
                 showModal('Failed to verify owner: ' + error.message);
@@ -267,48 +263,35 @@
                 return;
             }
             const addresses = addressesInput.split('\n').map(addr => addr.trim()).filter(addr => addr);
-            if (addresses.length === 0) {
-                addButton.disabled = true;
-                return;
-            }
-            const allValid = addresses.every(addr => web3.utils.isAddress(addr));
-            addButton.disabled = !allValid;
+            addButton.disabled = !addresses.length || !addresses.every(addr => web3.utils.isAddress(addr));
         }
 
         async function addToWhitelist() {
-            if (!web3 || !contract || !accounts) {
-                showModal('Please connect your wallet first!');
+            const addButton = document.getElementById('addToWhitelistBtn');
+            if (!web3 || !contract || !accounts || !isOwner) {
+                showModal('Please connect your wallet and ensure you are the owner!');
                 return;
             }
-            const addButton = document.getElementById('addToWhitelistBtn');
             addButton.classList.add('loading');
-            addButton.disabled = true;
             try {
                 const addressesInput = document.getElementById('whitelistAddresses').value.trim();
-                if (!addressesInput) {
-                    showModal('Please enter at least one address!');
-                    return;
-                }
                 const addresses = addressesInput.split('\n').map(addr => addr.trim()).filter(addr => addr);
-                if (addresses.length === 0) {
-                    showModal('No valid addresses provided!');
+                if (!addresses.length) {
+                    showModal('Please enter at least one valid address!');
                     return;
                 }
-                const validAddresses = [];
-                for (const addr of addresses) {
-                    if (web3.utils.isAddress(addr)) {
-                        validAddresses.push(addr);
-                    } else {
-                        showModal(`Invalid address detected: ${addr}`);
-                        return;
-                    }
+                const validAddresses = addresses.filter(addr => web3.utils.isAddress(addr));
+                if (validAddresses.length !== addresses.length) {
+                    showModal('One or more addresses are invalid!');
+                    return;
                 }
                 showModal('Adding addresses to whitelist...');
-                await contract.methods.addToWhitelist(validAddresses).send({ from: accounts[0] });
+                await contract.methods.addToWhitelist(validAddresses).send({ from: accounts[0], gas: 500000 });
                 showModal('Addresses added to whitelist successfully!');
                 document.getElementById('whitelistAddresses').value = '';
             } catch (error) {
-                showModal('Failed to add addresses: ' + error.message);
+                console.error('Error:', error);
+                showModal('Failed to add addresses: ' + (error.message || 'Unknown error'));
             } finally {
                 addButton.classList.remove('loading');
                 checkAddressesInput();
@@ -319,7 +302,7 @@
             if (!window.ethereum) {
                 showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
             }
-            document.getElementNameById('whitelistAddresses').addEventListener('input', checkAddressesInput);
+            document.getElementById('whitelistAddresses').addEventListener('input', checkAddressesInput);
         };
 
         window.ethereum?.on('chainChanged', (chainId) => {
