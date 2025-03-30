@@ -3,124 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bored Ape Shib Club</title>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <title>Shiba Inu Yacht Club</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
-            font-family: 'Montserrat', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
             min-height: 100vh;
-            color: #fff;
         }
         #nftCanvas {
-            border-radius: 15px;
-            box-shadow: 0 8px 20px rgba(0, 255, 157, 0.3);
+            border: 2px solid #333;
             background-color: #fff;
             width: 100%;
-            max-width: 400px;
+            max-width: 512px;
             height: auto;
         }
         .header {
             text-align: center;
-            margin-bottom: 20px;
-        }
-        h1 {
-            font-size: 48px;
-            color: #00ff9d;
-            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+            margin-bottom: 10px;
         }
         .wallet-info {
             margin: 10px 0;
-            font-size: 16px;
-        }
-        .mint-status {
             font-size: 14px;
-            color: #00ff9d;
+            color: #333;
+        }
+        .referral-info {
+            margin: 10px 0;
+            font-size: 14px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .referral-link {
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .copy-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .copy-btn:hover {
+            background-color: #45a049;
         }
         .controls {
-            margin: 20px 0;
+            margin: 10px 0;
             display: flex;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             gap: 10px;
+            justify-content: center;
             width: 100%;
-            max-width: 1200px;
-            overflow-x: auto;
+            max-width: 600px;
         }
         .control-group {
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-width: 140px;
+            width: 120px;
         }
         label {
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             font-weight: bold;
             font-size: 14px;
-            color: #00ff9d;
         }
         .layer-value {
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             font-size: 12px;
             text-align: center;
-            color: #fff;
-            max-width: 100%;
+            height: 18px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            width: 100%;
         }
         .cycle-buttons {
             display: flex;
             gap: 5px;
         }
         .cycle-btn {
-            padding: 5px 10px;
+            padding: 3px 8px;
             font-size: 12px;
-            background: linear-gradient(45deg, #00ff9d, #00cc7a);
-            color: #1a1a1a;
+            background-color: #4CAF50;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: transform 0.2s;
         }
         .cycle-btn:hover {
-            transform: scale(1.05);
+            background-color: #45a049;
         }
         select {
             margin-top: 5px;
-            padding: 5px;
+            padding: 3px;
             font-size: 12px;
             width: 100%;
             border-radius: 5px;
-            background: #333;
-            color: #fff;
-            border: 1px solid #00ff9d;
         }
         .action-buttons {
             display: flex;
-            gap: 15px;
-            margin: 20px 0;
+            gap: 10px;
+            margin: 10px 0;
         }
         .action-btn {
-            padding: 10px 20px;
-            font-size: 16px;
-            background: linear-gradient(45deg, #00ff9d, #00cc7a);
-            color: #1a1a1a;
+            padding: 8px 16px;
+            font-size: 14px;
+            color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .action-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 15px rgba(0, 255, 157, 0.7);
+        #connectWalletBtn {
+            background-color: #FF8A9D;
+        }
+        #connectWalletBtn:hover {
+            background-color: #FF6F85;
+        }
+        #randomizeBtn {
+            background-color: #4CAF50;
+        }
+        #randomizeBtn:hover {
+            background-color: #45a049;
+        }
+        #downloadBtn {
+            background-color: #008CBA;
+        }
+        #downloadBtn:hover {
+            background-color: #007bb5;
+        }
+        #mintBtn {
+            background-color: #FF8A9D;
+        }
+        #mintBtn:hover {
+            background-color: #FF6F85;
         }
         .action-btn:disabled {
-            background: #666;
+            background-color: #A8A2C0;
             cursor: not-allowed;
         }
         .action-btn.loading {
@@ -134,112 +162,79 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
+            background: rgba(0, 0, 0, 0.7);
             justify-content: center;
             align-items: center;
         }
         .modal-content {
-            background: #2d2d2d;
+            background: #FFF5F7;
             padding: 20px;
-            border-radius: 15px;
+            border-radius: 20px;
             text-align: center;
-            color: #fff;
-            max-width: 350px;
-            border: 2px solid #00ff9d;
-            box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+            color: #5A4A6F;
+            max-width: 320px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            border: 2px solid #FFD1D9;
         }
         .modal-content p {
             margin-bottom: 15px;
-            font-size: 18px;
+            font-size: 1.1em;
         }
         .modal-content button {
             padding: 10px 20px;
-            background: #00ff9d;
-            color: #1a1a1a;
+            border-radius: 25px;
+            font-size: 0.95em;
+            background: #FF8A9D;
+            color: #fff;
             border: none;
-            border-radius: 10px;
             cursor: pointer;
         }
-        .nft-viewer {
-            margin-top: 30px;
-            width: 100%;
-            max-width: 800px;
-        }
-        .nft-viewer h2 {
-            font-size: 32px;
-            color: #00ff9d;
-            text-align: center;
-        }
-        #nftList {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            justify-content: center;
-        }
-        .nft-card {
-            text-align: center;
-            background: #333;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 255, 157, 0.2);
-        }
-        .nft-card img {
-            width: 100%;
-            border-radius: 5px;
-        }
-        .nft-card p {
-            font-size: 14px;
-            margin: 5px 0;
-        }
-        .nft-card input {
-            width: 100%;
-            padding: 5px;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            border: 1px solid #00ff9d;
-            background: #1a1a1a;
-            color: #fff;
-        }
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 32px;
-            }
-            .controls {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
+        @media (max-width: 600px) {
             .control-group {
-                min-width: 110px;
+                width: 100px;
             }
             label {
                 font-size: 12px;
             }
             .layer-value {
                 font-size: 10px;
+                height: 16px;
             }
-            .cycle-btn, select {
+            .cycle-btn {
+                padding: 2px 6px;
                 font-size: 10px;
-                padding: 3px 6px;
+            }
+            select {
+                font-size: 10px;
+                padding: 2px;
             }
             .action-btn {
-                padding: 8px 16px;
-                font-size: 14px;
+                padding: 6px 12px;
+                font-size: 12px;
             }
-            .wallet-info, .mint-status {
-                font-size: 14px;
+            .wallet-info, .referral-info {
+                font-size: 12px;
             }
-            .modal-content {
-                max-width: 90%;
+            .referral-link {
+                max-width: 150px;
+            }
+            .copy-btn {
+                padding: 3px 8px;
+                font-size: 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Bored Ape Shib Club</h1>
+        <h1>Shiba Inu Yacht Club</h1>
         <div class="wallet-info">
             Wallet: <span id="walletAddress">Not connected</span><br>
-            <span class="mint-status">Mint Status: <span id="mintStatus">Not connected</span></span>
+            <a href="https://id.presalekiller.com/siyc" target="_blank">Whitepaper</a>
+        </div>
+        <div class="referral-info">
+            Referral Link: <span id="referralLink" class="referral-link">Connect wallet to see your link</span>
+            <button id="copyBtn" class="copy-btn" disabled>Copy</button>
         </div>
         <button id="connectWalletBtn" class="action-btn">Connect Wallet</button>
     </div>
@@ -427,30 +422,30 @@
         </div>
         <div class="control-group">
             <label>Mouth</label>
-            <div id="mouthValue" class="layer-value">Bored Bubblegum</div>
+            <div id="mouthValue" class="layer-value">Bored</div>
             <div class="cycle-buttons">
                 <button class="cycle-btn" onclick="cycleLayer('Mouth', -1)">Prev</button>
                 <button class="cycle-btn" onclick="cycleLayer('Mouth', 1)">Next</button>
             </div>
             <select id="mouthSelect" onchange="selectLayer('Mouth')">
-                <option value="0">Bored Bubblegum</option>
-                <option value="1">Bored Cigar</option>
-                <option value="2">Bored Cigarette</option>
-                <option value="3">Bored Dagger</option>
-                <option value="4">Bored Kazoo</option>
-                <option value="5">Bored Party Horn</option>
-                <option value="6">Bored Pipe</option>
-                <option value="7">Bored Pizza</option>
-                <option value="8">Bored Unshaven Bubblegum</option>
-                <option value="9">Bored Unshaven Cigar</option>
-                <option value="10">Bored Unshaven Cigarette</option>
-                <option value="11">Bored Unshaven Dagger</option>
-                <option value="12">Bored Unshaven Kazoo</option>
-                <option value="13">Bored Unshaven Party Horn</option>
-                <option value="14">Bored Unshaven Pipe</option>
-                <option value="15">Bored Unshaven Pizza</option>
-                <option value="16">Bored Unshaven</option>
-                <option value="17">Bored</option>
+                <option value="0">Bored</option>
+                <option value="1">Bored Bubblegum</option>
+                <option value="2">Bored Cigar</option>
+                <option value="3">Bored Cigarette</option>
+                <option value="4">Bored Dagger</option>
+                <option value="5">Bored Kazoo</option>
+                <option value="6">Bored Party Horn</option>
+                <option value="7">Bored Pipe</option>
+                <option value="8">Bored Pizza</option>
+                <option value="9">Bored Unshaven Bubblegum</option>
+                <option value="10">Bored Unshaven Cigar</option>
+                <option value="11">Bored Unshaven Cigarette</option>
+                <option value="12">Bored Unshaven Dagger</option>
+                <option value="13">Bored Unshaven Kazoo</option>
+                <option value="14">Bored Unshaven Party Horn</option>
+                <option value="15">Bored Unshaven Pipe</option>
+                <option value="16">Bored Unshaven Pizza</option>
+                <option value="17">Bored Unshaven</option>
                 <option value="18">Discomfort</option>
                 <option value="19">Dumbfounded</option>
                 <option value="20">Grin Diamond Grill</option>
@@ -486,11 +481,11 @@
             </select>
         </div>
     </div>
-    <canvas id="nftCanvas" width="400" height="400"></canvas>
+    <canvas id="nftCanvas" width="512" height="512"></canvas>
     <div class="action-buttons">
         <button id="randomizeBtn" class="action-btn" onclick="randomizeNFT()">Randomize</button>
         <button id="downloadBtn" class="action-btn" onclick="downloadNFT()">Download PNG</button>
-        <button id="mintBtn" class="action-btn" onclick="mintNFT()" disabled>Mint NFT</button>
+        <button id="mintBtn" class="action-btn" disabled>Mint NFT</button>
     </div>
     <div id="modal" class="modal">
         <div class="modal-content">
@@ -498,9 +493,9 @@
             <button onclick="closeModal()">OK</button>
         </div>
     </div>
-    <div class="nft-viewer">
-        <h2>Your Bored Ape Shib Club NFTs</h2>
-        <div id="nftList"></div>
+    <div class="nft-viewer" style="margin-top: 20px; width: 100%; max-width: 600px;">
+        <h2>Your Shiba Inu Yacht Club NFTs</h2>
+        <div id="nftList" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
@@ -511,7 +506,7 @@
             Clothes: ["None", "Admirals Coat", "Bandolier", "Bayc T Black", "Bayc T Red", "Biker Vest", "Black Holes T", "Black Suit", "Black T", "Blue Dress", "Bone Necklace", "Bone Tee", "Caveman Pelt", "Cowboy Shirt", "Guayabera", "Hawaiian", "Hip Hop", "Kings Robe", "Lab Coat", "Leather Jacket", "Leather Punk Jacket", "Lumberjack Shirt", "Navy Striped Tee", "Pimp Coat", "Prison Jumpsuit", "Prom Dress", "Puffy Vest", "Rainbow Suspenders", "Sailor Shirt", "Service", "Sleeveless Logo T", "Sleeveless T", "Smoking Jacket", "Space suit", "Striped Tee", "Stunt Jacket", "Tanktop", "Tie Dye", "Toga", "Tuxedo Tee", "Tweed Suit", "Vietnam Jacket", "Wool Turtleneck", "Work Vest"],
             Eyes: ["3D", "Angry", "Blindfold", "Bloodshot", "Blue Beams", "Bored", "Closed", "Coins", "Crazy", "Cyborg", "Eyepatch", "Heart", "Holographic", "Hypnotized", "Laser Eyes", "Robot", "Sad", "Scumbag", "Sleepy", "Sunglasses", "Wide Eyed", "X Eyes", "Zombie"],
             Hat: ["None", "Army Hat", "Baby's Bonnet", "Bandana Blue", "Bayc Flipped Brim", "Bayc Hat Black", "Bayc Hat Red", "Beanie", "Bowler", "Bunny Ears", "Commie Hat", "Cowboy Hat", "Faux Hawk", "Fez", "Fisherman's Hat", "Girl's Hair Pink", "Girl's Hair Short", "Halo", "Horns", "Irish Boho", "King's Crown", "Laurel Wreath", "Party Hat 1", "Party Hat 2", "Police Motorcycle Helmet", "Prussian Helmet", "S&m Hat", "Safari", "Sea Captain's Hat", "Seaman's Hat", "Short Mohawk", "Spinner Hat", "Stuntman Helmet", "Sushi Chef Headband", "Trippy Captain's Hat", "Vietnam Era Helmet", "Ww2 Pilot Helm"],
-            Mouth: ["Bored Bubblegum", "Bored Cigar", "Bored Cigarette", "Bored Dagger", "Bored Kazoo", "Bored Party Horn", "Bored Pipe", "Bored Pizza", "Bored Unshaven Bubblegum", "Bored Unshaven Cigar", "Bored Unshaven Cigarette", "Bored Unshaven Dagger", "Bored Unshaven Kazoo", "Bored Unshaven Party Horn", "Bored Unshaven Pipe", "Bored Unshaven Pizza", "Bored Unshaven", "Bored", "Discomfort", "Dumbfounded", "Grin Diamond Grill", "Grin Gold Grill", "Grin Multicolored", "Grin", "Jovial", "Phoneme L", "Phoneme Oh", "Phoneme ooo", "Phoneme Vuh", "Phoneme Wah", "Rage", "Small Grin", "Tongue Out"],
+            Mouth: ["Bored", "Bored Bubblegum", "Bored Cigar", "Bored Cigarette", "Bored Dagger", "Bored Kazoo", "Bored Party Horn", "Bored Pipe", "Bored Pizza", "Bored Unshaven Bubblegum", "Bored Unshaven Cigar", "Bored Unshaven Cigarette", "Bored Unshaven Dagger", "Bored Unshaven Kazoo", "Bored Unshaven Party Horn", "Bored Unshaven Pipe", "Bored Unshaven Pizza", "Bored Unshaven", "Discomfort", "Dumbfounded", "Grin Diamond Grill", "Grin Gold Grill", "Grin Multicolored", "Grin", "Jovial", "Phoneme L", "Phoneme Oh", "Phoneme ooo", "Phoneme Vuh", "Phoneme Wah", "Rage", "Small Grin", "Tongue Out"],
             Earring: ["None", "Cross", "Diamond Stud", "Gold Hoop", "Gold Stud", "Silver Hoop", "Silver Stud"]
         };
 
@@ -529,29 +524,29 @@
         const canvas = document.getElementById("nftCanvas");
         const ctx = canvas.getContext("2d");
 
-        let web3, accounts, contract;
-        const CONTRACT_ADDRESS = "0x8CbCfF7f9Ef9d16A50A04a787A609189DA8FddA5";
+        let web3, accounts, contract, noneTokenContract;
+        const CONTRACT_ADDRESS = "0xE204721807f8a9FEe31B766141FBAE9F192856C9";
+        const NONE_TOKEN_ADDRESS = "0x64E19b6a167878d2483d166212A3c2c68b1eB842";
+        const DEFAULT_REFERRER = "0x9FC924a7c8678C7Bb13114Bd0C74E446937499fA";
+        const BONE_PAYMENT = "10000000000000000000";
+        const BASE_URL = "https://id.presalekiller.com/";
+        let referrerFromUrl = getReferrerFromUrl();
+
         const CONTRACT_ABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"}
         ];
+
+        const NONE_TOKEN_ABI = [
+            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getUserStatus","outputs":[{"internalType":"bool","name":"joined","type":"bool"},{"internalType":"bool","name":"paidBone","type":"bool"},{"internalType":"bool","name":"nodeStatus","type":"bool"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"_referrer","type":"address"}],"name":"joinWithReferrer","outputs":[],"stateMutability":"payable","type":"function"}
+        ];
+
         const shibariumMainnet = {
             chainId: 109,
             chainName: 'Shibarium',
@@ -569,67 +564,94 @@
             document.getElementById('modal').style.display = 'none';
         }
 
-        async function connectWallet() {
-            const connectButton = document.getElementById('connectWalletBtn');
-            if (!window.ethereum) {
-                showModal('No wallet detected. Please install <a href="https://.com" target="_blank">MetaMask</a>.');
-                return;
+        function getReferrerFromUrl() {
+            const path = window.location.pathname;
+            const addressRegex = /^\/0x[a-fA-F0-9]{40}$/;
+            if (addressRegex.test(path)) {
+                return path.substring(1);
             }
-            connectButton.classList.add('loading');
-            try {
-                web3 = new Web3(window.ethereum);
-                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                if (!accounts.length) {
-                    showModal('Please unlock your wallet or connect it.');
-                    return;
+            return DEFAULT_REFERRER;
+        }
+
+        async function updateReferralLink() {
+            const referralLinkElement = document.getElementById('referralLink');
+            const copyButton = document.getElementById('copyBtn');
+            if (!accounts || !noneTokenContract) {
+                referralLinkElement.textContent = 'Connect wallet to see your link';
+                copyButton.disabled = true;
+            } else {
+                const userStatus = await noneTokenContract.methods.getUserStatus(accounts[0]).call();
+                const hasJoined = userStatus[0];
+                if (hasJoined) {
+                    const referralLink = `${BASE_URL}${accounts[0]}`;
+                    referralLinkElement.textContent = referralLink;
+                    copyButton.disabled = false;
+                } else {
+                    referralLinkElement.textContent = 'None';
+                    copyButton.disabled = true;
                 }
-                const chainId = await web3.eth.getChainId();
-                if (chainId !== 109) {
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: web3.utils.numberToHex(109) }]
-                        });
-                    } catch (switchError) {
-                        if (switchError.code === 4902) {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [shibariumMainnet]
-                            });
-                        } else {
-                            showModal('Failed to switch network. Please switch to Shibarium manually.');
-                            return;
-                        }
-                    }
-                }
-                contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
-                await updateWalletInfo();
-                fetchOwnedNFTs();
-                showModal('Connected to Shibarium successfully!');
-            } catch (error) {
-                showModal('Connection failed: ' + error.message);
-            } finally {
-                connectButton.classList.remove('loading');
             }
         }
 
-        async function updateWalletInfo() {
-            const mintButton = document.getElementById('mintBtn');
-            if (!accounts || !accounts.length) {
-                document.getElementById('walletAddress').innerText = 'Not connected';
-                document.getElementById('mintStatus').innerText = 'Not connected';
-                mintButton.disabled = true;
+        function copyReferralLink() {
+            const referralLink = document.getElementById('referralLink').textContent;
+            if (referralLink !== 'None' && referralLink !== 'Connect wallet to see your link' && referralLink !== 'Error checking status') {
+                navigator.clipboard.writeText(referralLink).then(() => {
+                    showModal('Referral link copied to clipboard!');
+                }).catch(err => {
+                    showModal('Failed to copy link: ' + err);
+                });
+            }
+        }
+
+        async function connectWallet() {
+            const connectButton = document.getElementById('connectWalletBtn');
+            if (!window.ethereum) {
+                showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
                 return;
             }
-            const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
-            document.getElementById('walletAddress').innerText = shortAddress;
-            try {
-                const status = await contract.methods.getMintingStatus(accounts[0]).call();
-                document.getElementById('mintStatus').innerText = `${status[1]}/${status[0]}`;
-                mintButton.disabled = status[1] >= status[0];
-            } catch (error) {
-                showModal('Failed to fetch mint status: ' + error.message);
-                mintButton.disabled = true;
+            connectButton.classList.add('loading');
+            web3 = new Web3(window.ethereum);
+            accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            if (!accounts.length) {
+                showModal('Please unlock your wallet or connect it.');
+                return;
+            }
+            const chainId = await web3.eth.getChainId();
+            if (chainId !== 109) {
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: web3.utils.numberToHex(109) }]
+                    });
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [shibariumMainnet]
+                        });
+                    } else {
+                        showModal('Failed to switch network. Please add Shibarium manually.');
+                        return;
+                    }
+                }
+            }
+            contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
+            noneTokenContract = new web3.eth.Contract(NONE_TOKEN_ABI, NONE_TOKEN_ADDRESS);
+            showModal('Connected to Shibarium successfully!');
+            updateWalletAddress();
+            updateReferralLink();
+            document.getElementById('mintBtn').disabled = false;
+            fetchOwnedNFTs();
+            connectButton.classList.remove('loading');
+        }
+
+        async function updateWalletAddress() {
+            if (!accounts) {
+                document.getElementById('walletAddress').innerText = 'Not connected';
+            } else {
+                const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                document.getElementById('walletAddress').innerText = shortAddress;
             }
         }
 
@@ -639,15 +661,19 @@
         }
 
         async function drawLayer(layerName, layerValue) {
-            if (layerValue === "None") return Promise.resolve();
+            if (layerValue === "None") {
+                return Promise.resolve();
+            }
             return new Promise((resolve) => {
                 const img = new Image();
                 img.src = `images/${layerName}/${layerValue}.png`;
                 img.onload = () => {
-                    ctx.drawImage(img, 0, 0, 400, 400);
+                    ctx.drawImage(img, 0, 0, 512, 512);
                     resolve();
                 };
-                img.onerror = () => resolve();
+                img.onerror = () => {
+                    resolve();
+                };
             });
         }
 
@@ -674,6 +700,8 @@
         function randomizeNFT() {
             for (const layer of layerOrder) {
                 currentIndices[layer] = Math.floor(Math.random() * layers[layer].length);
+            }
+            for (const layer of layerOrder) {
                 updateLayerValue(layer);
             }
             updateNFT();
@@ -687,7 +715,7 @@
         }
 
         async function mintNFT() {
-            if (!web3 || !contract || !accounts) {
+            if (!web3 || !contract || !accounts || !noneTokenContract) {
                 showModal('Please connect your wallet first!');
                 return;
             }
@@ -710,35 +738,12 @@
         async function proceedWithMinting() {
             const mintButton = document.getElementById('mintBtn');
             try {
-                const status = await contract.methods.getMintingStatus(accounts[0]).call();
-                if (status[1] >= status[0]) {
-                    showModal('You have reached your minting limit!');
-                    return;
-                }
-                const tempCanvas = document.createElement('canvas');
-                tempCanvas.width = 400;
-                tempCanvas.height = 400;
-                const tempCtx = tempCanvas.getContext('2d');
-                for (const layer of layerOrder) {
-                    const layerValue = layers[layer][currentIndices[layer]];
-                    if (layerValue !== "None") {
-                        const img = new Image();
-                        img.src = `images/${layer}/${layerValue}.png`;
-                        await new Promise(resolve => {
-                            img.onload = () => {
-                                tempCtx.drawImage(img, 0, 0, 400, 400);
-                                resolve();
-                            };
-                            img.onerror = resolve;
-                        });
-                    }
-                }
-                const imageData = tempCanvas.toDataURL("image/png").split(',')[1];
+                const imageData = canvas.toDataURL("image/png").split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 const totalSupply = await contract.methods.totalSupply().call();
                 const metadata = {
-                    name: `Bored Ape Shib Club #${totalSupply}`,
-                    description: "A unique Bored Ape Shib Club NFT",
+                    name: `Shiba Inu Yacht Club #${totalSupply}`,
+                    description: "A unique Shiba Inu Yacht Club NFT",
                     image: `data:image/png;base64,${imageData}`,
                     attributes: attributes.map((val, i) => ({
                         trait_type: layerOrder[i],
@@ -746,55 +751,50 @@
                     }))
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
+                const userStatus = await noneTokenContract.methods.getUserStatus(accounts[0]).call();
+                const hasJoined = userStatus[0];
+                const isNode = userStatus[2];
+                if (!hasJoined && !isNode) {
+                    showModal('You need to join first by paying 10 BONE...');
+                    await noneTokenContract.methods.joinWithReferrer(referrerFromUrl).send({
+                        from: accounts[0],
+                        value: BONE_PAYMENT
+                    });
+                    showModal('Successfully joined! Proceeding to mint NFT...');
+                    updateReferralLink();
+                }
                 showModal('Minting NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 2000000 });
+                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0] });
                 showModal('NFT minted successfully!');
-                updateWalletInfo();
                 fetchOwnedNFTs();
             } catch (error) {
-                console.error('Minting error:', error);
-                if (error.code === 4001) {
-                    showModal('Transaction rejected by user.');
-                } else if (error.message.includes("Not in whitelist")) {
-                    showModal('Minting failed: Your address is not in the whitelist.');
-                } else if (error.message.includes("Attribute combination already used")) {
-                    showModal('Minting failed: This attribute combination has already been used.');
-                } else if (error.message.includes("Invalid attributes length")) {
-                    showModal('Minting failed: Invalid number of attributes (must be 7).');
-                } else if (error.message.includes("Max supply reached")) {
-                    showModal('Minting failed: Maximum supply reached.');
-                } else if (error.message.includes("Minting limit reached")) {
-                    showModal('Minting failed: You have reached your minting limit.');
-                } else {
-                    showModal('Minting failed: ' + (error.message || 'Unknown error'));
-                }
+                showModal('Minting failed: ' + error.message);
             } finally {
                 mintButton.classList.remove('loading');
-                updateWalletInfo();
+                mintButton.disabled = false;
             }
         }
 
         async function fetchOwnedNFTs() {
-            if (!web3 || !contract || !accounts) return;
+            if (!web3 || !contract || !accounts) {
+                showModal('Please connect your wallet first!');
+                return;
+            }
             const nftList = document.getElementById('nftList');
             nftList.innerHTML = '<p>Loading your NFTs...</p>';
-            try {
-                const balance = await contract.methods.balanceOf(accounts[0]).call();
-                if (balance == 0) {
-                    nftList.innerHTML = '<p>You don’t own any NFTs yet.</p>';
-                    return;
+            const balance = await contract.methods.balanceOf(accounts[0]).call();
+            if (balance == 0) {
+                nftList.innerHTML = '<p>You don’t own any Shiba Inu Yacht Club NFTs yet.</p>';
+                return;
+            }
+            nftList.innerHTML = '';
+            const totalSupply = await contract.methods.totalSupply().call();
+            for (let i = 0; i < totalSupply; i++) {
+                const owner = await contract.methods.ownerOf(i).call();
+                if (owner.toLowerCase() === accounts[0].toLowerCase()) {
+                    const tokenURI = await contract.methods.tokenURI(i).call();
+                    await displayNFT(i, tokenURI);
                 }
-                nftList.innerHTML = '';
-                const totalSupply = await contract.methods.totalSupply().call();
-                for (let i = 0; i < totalSupply; i++) {
-                    const owner = await contract.methods.ownerOf(i).call();
-                    if (owner.toLowerCase() === accounts[0].toLowerCase()) {
-                        const tokenURI = await contract.methods.tokenURI(i).call();
-                        await displayNFT(i, tokenURI);
-                    }
-                }
-            } catch (error) {
-                nftList.innerHTML = '<p>Failed to load NFTs: ' + error.message + '</p>';
             }
         }
 
@@ -808,12 +808,13 @@
                 metadata = { name: `Token #${tokenId}`, image: 'Unknown' };
             }
             const nftDiv = document.createElement('div');
-            nftDiv.className = 'nft-card';
+            nftDiv.style.textAlign = 'center';
+            nftDiv.style.width = '150px';
             nftDiv.innerHTML = `
-                <img src="${metadata.image}" alt="${metadata.name}">
-                <p>${metadata.name} (ID: ${tokenId})</p>
-                <input type="text" id="transferAddress${tokenId}" placeholder="Recipient Address">
-                <button class="action-btn" onclick="transferNFT(${tokenId})">Transfer</button>
+                <img src="${metadata.image}" alt="${metadata.name}" style="width: 100%; border-radius: 10px;">
+                <p style="font-size: 14px; margin: 5px 0;">${metadata.name} (ID: ${tokenId})</p>
+                <input type="text" id="transferAddress${tokenId}" placeholder="Recipient Address" style="width: 100%; padding: 5px; margin-bottom: 5px; border-radius: 5px;">
+                <button class="action-btn" onclick="transferNFT(${tokenId})" style="background-color: #FF8A9D;">Transfer</button>
             `;
             nftList.appendChild(nftDiv);
         }
@@ -828,14 +829,10 @@
                 showModal('Invalid Ethereum address!');
                 return;
             }
-            try {
-                showModal('Transferring NFT...');
-                await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0], gas: 300000 });
-                showModal('NFT transferred successfully!');
-                fetchOwnedNFTs();
-            } catch (error) {
-                showModal('Transfer failed: ' + (error.message || 'Unknown error'));
-            }
+            showModal('Transferring NFT...');
+            await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0] });
+            showModal('NFT transferred successfully!');
+            fetchOwnedNFTs();
         }
 
         window.onload = () => {
@@ -843,7 +840,10 @@
                 updateLayerValue(layer);
             }
             updateNFT();
-            if (!window.ethereum) {
+            updateReferralLink();
+            if (!window.location.protocol.startsWith('http')) {
+                showModal('Please run this page via a local server (e.g., "npx serve") to connect MetaMask.');
+            } else if (!window.ethereum) {
                 showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
             }
         };
@@ -854,7 +854,9 @@
                 web3 = null;
                 contract = null;
                 accounts = null;
-                updateWalletInfo();
+                updateWalletAddress();
+                updateReferralLink();
+                document.getElementById('mintBtn').disabled = true;
             } else {
                 connectWallet();
             }
@@ -868,11 +870,14 @@
                 web3 = null;
                 contract = null;
                 accounts = null;
-                updateWalletInfo();
+                updateWalletAddress();
+                updateReferralLink();
+                document.getElementById('mintBtn').disabled = true;
             }
         });
 
         document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
+        document.getElementById('copyBtn').addEventListener('click', copyReferralLink);
     </script>
 </body>
 </html>
