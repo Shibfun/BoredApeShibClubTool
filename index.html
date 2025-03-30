@@ -531,7 +531,6 @@
 
         let web3, accounts, contract;
         const CONTRACT_ADDRESS = "0x9d8eE62EbA3954eA0a7f53FA417FD5125786Ec00";
-
         const CONTRACT_ABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -554,7 +553,6 @@
             {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
         ];
-
         const shibariumMainnet = {
             chainId: 109,
             chainName: 'Shibarium',
@@ -625,11 +623,8 @@
                 const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
                 document.getElementById('walletAddress').innerText = shortAddress;
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
-                const maxAllowed = status[0];
-                const minted = status[1];
-                const remaining = status[2];
-                document.getElementById('mintStatus').innerText = `${minted}/${maxAllowed}`;
-                document.getElementById('mintBtn').disabled = (remaining == 0);
+                document.getElementById('mintStatus').innerText = `${status[1]}/${status[0]}`;
+                document.getElementById('mintBtn').disabled = (status[2] == 0);
             }
         }
 
@@ -711,12 +706,29 @@
             const mintButton = document.getElementById('mintBtn');
             try {
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
-                const remaining = status[2];
-                if (remaining == 0) {
+                if (status[2] == 0) {
                     showModal('You have reached your minting limit!');
                     return;
                 }
-                const imageData = canvas.toDataURL("image/png").split(',')[1];
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = 400;
+                tempCanvas.height = 400;
+                const tempCtx = tempCanvas.getContext('2d');
+                for (const layer of layerOrder) {
+                    const layerValue = layers[layer][currentIndices[layer]];
+                    if (layerValue !== "None") {
+                        const img = new Image();
+                        img.src = `images/${layer}/${layerValue}.png`;
+                        await new Promise(resolve => {
+                            img.onload = () => {
+                                tempCtx.drawImage(img, 0, 0, 400, 400);
+                                resolve();
+                            };
+                            img.onerror = resolve;
+                        });
+                    }
+                }
+                const imageData = tempCanvas.toDataURL("image/png").split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 const totalSupply = await contract.methods.totalSupply().call();
                 const metadata = {
