@@ -364,7 +364,7 @@
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
                 showModal('Minting NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 2000000 });
+                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 20000000 });
                 showModal('NFT minted successfully!');
                 updateWalletInfo();
                 fetchOwnedNFTs();
@@ -457,7 +457,7 @@
                 return;
             }
             showModal('Transferring NFT...');
-            await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0], gas: 2000000 });
+            await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0], gas: 20000000 });
             showModal('NFT transferred successfully!');
             fetchOwnedNFTs();
         }
