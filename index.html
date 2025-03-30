@@ -530,17 +530,16 @@
         const ctx = canvas.getContext("2d");
 
         let web3, accounts, contract;
-        const CONTRACT_ADDRESS = "0x9d8eE62EbA3954eA0a7f53FA417FD5125786Ec00";
+        const CONTRACT_ADDRESS = "0x8CbCfF7f9Ef9d16A50A04a787A609189DA8FddA5";
         const CONTRACT_ABI = [
             {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
             {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"},{"internalType":"uint256","name":"remaining","type":"uint256"}],"stateMutability":"view","type":"function"},
-            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
@@ -548,7 +547,7 @@
             {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
             {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
             {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
-            {"inputs":[{"internalType":"address","name":"tokenOwner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
@@ -573,7 +572,7 @@
         async function connectWallet() {
             const connectButton = document.getElementById('connectWalletBtn');
             if (!window.ethereum) {
-                showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
+                showModal('No wallet detected. Please install <a href="https://.com" target="_blank">MetaMask</a>.');
                 return;
             }
             connectButton.classList.add('loading');
@@ -598,7 +597,7 @@
                                 params: [shibariumMainnet]
                             });
                         } else {
-                            showModal('Failed to switch network. Please add Shibarium manually.');
+                            showModal('Failed to switch network. Please switch to Shibarium manually.');
                             return;
                         }
                     }
@@ -615,16 +614,22 @@
         }
 
         async function updateWalletInfo() {
-            if (!accounts) {
+            const mintButton = document.getElementById('mintBtn');
+            if (!accounts || !accounts.length) {
                 document.getElementById('walletAddress').innerText = 'Not connected';
                 document.getElementById('mintStatus').innerText = 'Not connected';
-                document.getElementById('mintBtn').disabled = true;
-            } else {
-                const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
-                document.getElementById('walletAddress').innerText = shortAddress;
+                mintButton.disabled = true;
+                return;
+            }
+            const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+            document.getElementById('walletAddress').innerText = shortAddress;
+            try {
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
                 document.getElementById('mintStatus').innerText = `${status[1]}/${status[0]}`;
-                document.getElementById('mintBtn').disabled = (status[2] == 0);
+                mintButton.disabled = status[1] >= status[0];
+            } catch (error) {
+                showModal('Failed to fetch mint status: ' + error.message);
+                mintButton.disabled = true;
             }
         }
 
@@ -706,7 +711,7 @@
             const mintButton = document.getElementById('mintBtn');
             try {
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
-                if (status[2] == 0) {
+                if (status[1] >= status[0]) {
                     showModal('You have reached your minting limit!');
                     return;
                 }
@@ -742,12 +747,15 @@
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
                 showModal('Minting NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0] });
+                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 2000000 });
                 showModal('NFT minted successfully!');
                 updateWalletInfo();
                 fetchOwnedNFTs();
             } catch (error) {
-                if (error.message.includes("Not in whitelist")) {
+                console.error('Minting error:', error);
+                if (error.code === 4001) {
+                    showModal('Transaction rejected by user.');
+                } else if (error.message.includes("Not in whitelist")) {
                     showModal('Minting failed: Your address is not in the whitelist.');
                 } else if (error.message.includes("Attribute combination already used")) {
                     showModal('Minting failed: This attribute combination has already been used.');
@@ -758,11 +766,11 @@
                 } else if (error.message.includes("Minting limit reached")) {
                     showModal('Minting failed: You have reached your minting limit.');
                 } else {
-                    showModal('Minting failed: ' + error.message);
+                    showModal('Minting failed: ' + (error.message || 'Unknown error'));
                 }
             } finally {
                 mintButton.classList.remove('loading');
-                mintButton.disabled = false;
+                updateWalletInfo();
             }
         }
 
@@ -770,19 +778,23 @@
             if (!web3 || !contract || !accounts) return;
             const nftList = document.getElementById('nftList');
             nftList.innerHTML = '<p>Loading your NFTs...</p>';
-            const balance = await contract.methods.balanceOf(accounts[0]).call();
-            if (balance == 0) {
-                nftList.innerHTML = '<p>You don’t own any NFTs yet.</p>';
-                return;
-            }
-            nftList.innerHTML = '';
-            const totalSupply = await contract.methods.totalSupply().call();
-            for (let i = 0; i < totalSupply; i++) {
-                const owner = await contract.methods.ownerOf(i).call();
-                if (owner.toLowerCase() === accounts[0].toLowerCase()) {
-                    const tokenURI = await contract.methods.tokenURI(i).call();
-                    await displayNFT(i, tokenURI);
+            try {
+                const balance = await contract.methods.balanceOf(accounts[0]).call();
+                if (balance == 0) {
+                    nftList.innerHTML = '<p>You don’t own any NFTs yet.</p>';
+                    return;
                 }
+                nftList.innerHTML = '';
+                const totalSupply = await contract.methods.totalSupply().call();
+                for (let i = 0; i < totalSupply; i++) {
+                    const owner = await contract.methods.ownerOf(i).call();
+                    if (owner.toLowerCase() === accounts[0].toLowerCase()) {
+                        const tokenURI = await contract.methods.tokenURI(i).call();
+                        await displayNFT(i, tokenURI);
+                    }
+                }
+            } catch (error) {
+                nftList.innerHTML = '<p>Failed to load NFTs: ' + error.message + '</p>';
             }
         }
 
@@ -816,10 +828,14 @@
                 showModal('Invalid Ethereum address!');
                 return;
             }
-            showModal('Transferring NFT...');
-            await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0] });
-            showModal('NFT transferred successfully!');
-            fetchOwnedNFTs();
+            try {
+                showModal('Transferring NFT...');
+                await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0], gas: 300000 });
+                showModal('NFT transferred successfully!');
+                fetchOwnedNFTs();
+            } catch (error) {
+                showModal('Transfer failed: ' + (error.message || 'Unknown error'));
+            }
         }
 
         window.onload = () => {
