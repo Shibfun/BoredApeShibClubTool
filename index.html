@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shiba Inu Yacht Club</title>
+    <title>Bored Ape Shib Club</title>
     <style>
         body {
             display: flex;
@@ -19,7 +19,7 @@
             border: 2px solid #333;
             background-color: #fff;
             width: 100%;
-            max-width: 512px;
+            max-width: 400px;
             height: auto;
         }
         .header {
@@ -227,10 +227,10 @@
 </head>
 <body>
     <div class="header">
-        <h1>Shiba Inu Yacht Club</h1>
+        <h1>Bored Ape Shib Club</h1>
         <div class="wallet-info">
             Wallet: <span id="walletAddress">Not connected</span><br>
-            <a href="https://id.presalekiller.com/siyc" target="_blank">Whitepaper</a>
+            <a href="https://id.presalekiller.com/BASC" target="_blank">Whitepaper</a>
         </div>
         <div class="referral-info">
             Referral Link: <span id="referralLink" class="referral-link">Connect wallet to see your link</span>
@@ -481,7 +481,7 @@
             </select>
         </div>
     </div>
-    <canvas id="nftCanvas" width="512" height="512"></canvas>
+    <canvas id="nftCanvas" width="400" height="400"></canvas>
     <div class="action-buttons">
         <button id="randomizeBtn" class="action-btn" onclick="randomizeNFT()">Randomize</button>
         <button id="downloadBtn" class="action-btn" onclick="downloadNFT()">Download PNG</button>
@@ -494,7 +494,7 @@
         </div>
     </div>
     <div class="nft-viewer" style="margin-top: 20px; width: 100%; max-width: 600px;">
-        <h2>Your Shiba Inu Yacht Club NFTs</h2>
+        <h2>Your Bored Ape Shib Club NFTs</h2>
         <div id="nftList" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>
     </div>
 
@@ -668,7 +668,7 @@
                 const img = new Image();
                 img.src = `images/${layerName}/${layerValue}.png`;
                 img.onload = () => {
-                    ctx.drawImage(img, 0, 0, 512, 512);
+                    ctx.drawImage(img, 0, 0, 400, 400);
                     resolve();
                 };
                 img.onerror = () => {
@@ -742,8 +742,8 @@
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 const totalSupply = await contract.methods.totalSupply().call();
                 const metadata = {
-                    name: `Shiba Inu Yacht Club #${totalSupply}`,
-                    description: "A unique Shiba Inu Yacht Club NFT",
+                    name: `Bored Ape Shib Club #${totalSupply}`,
+                    description: "A unique Bored Ape Shib Club NFT",
                     image: `data:image/png;base64,${imageData}`,
                     attributes: attributes.map((val, i) => ({
                         trait_type: layerOrder[i],
@@ -784,7 +784,7 @@
             nftList.innerHTML = '<p>Loading your NFTs...</p>';
             const balance = await contract.methods.balanceOf(accounts[0]).call();
             if (balance == 0) {
-                nftList.innerHTML = '<p>You don’t own any Shiba Inu Yacht Club NFTs yet.</p>';
+                nftList.innerHTML = '<p>You don’t own any Bored Ape Shib Club NFTs yet.</p>';
                 return;
             }
             nftList.innerHTML = '';
