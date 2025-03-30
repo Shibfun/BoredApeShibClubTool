@@ -44,16 +44,18 @@
         }
         .controls {
             margin: 20px 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 10px;
             width: 100%;
-            max-width: 800px;
+            max-width: 1200px;
+            overflow-x: auto;
         }
         .control-group {
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-width: 140px;
         }
         label {
             margin-bottom: 5px;
@@ -198,18 +200,26 @@
             background: #1a1a1a;
             color: #fff;
         }
-        @media (max-width: 600px) {
+        @media (max-width: 768px) {
             h1 {
                 font-size: 32px;
             }
             .controls {
-                grid-template-columns: 1fr;
+                flex-wrap: wrap;
+                gap: 8px;
             }
             .control-group {
-                width: 100%;
+                min-width: 110px;
+            }
+            label {
+                font-size: 12px;
+            }
+            .layer-value {
+                font-size: 10px;
             }
             .cycle-btn, select {
                 font-size: 10px;
+                padding: 3px 6px;
             }
             .action-btn {
                 padding: 8px 16px;
@@ -680,6 +690,21 @@
             const mintButton = document.getElementById('mintBtn');
             mintButton.classList.add('loading');
             mintButton.disabled = true;
+            let countdown = 10;
+            showModal(`Minting will start in <span id="countdown">${countdown}</span> seconds...`);
+            const countdownElement = document.getElementById('countdown');
+            const countdownInterval = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    proceedWithMinting();
+                }
+            }, 1000);
+        }
+
+        async function proceedWithMinting() {
+            const mintButton = document.getElementById('mintBtn');
             try {
                 const status = await contract.methods.getMintingStatus(accounts[0]).call();
                 const remaining = status[2];
