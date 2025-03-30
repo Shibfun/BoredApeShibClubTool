@@ -19,7 +19,7 @@
             border: 2px solid #333;
             background-color: #fff;
             width: 100%;
-            max-width: 256px; /* 缩小到 256px */
+            max-width: 256px;
             height: auto;
         }
         .header {
@@ -162,6 +162,26 @@
             color: #fff;
             border: none;
             cursor: pointer;
+        }
+        .preview-section {
+            margin-top: 20px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        #base64Preview {
+            width: 100%;
+            height: 100px;
+            resize: none;
+            font-size: 12px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .settings {
+            margin: 10px 0;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
         }
         @media (max-width: 600px) {
             .control-group {
@@ -444,7 +464,7 @@
             </select>
         </div>
     </div>
-    <canvas id="nftCanvas" width="256" height="256"></canvas> <!-- 缩小到 256x256 -->
+    <canvas id="nftCanvas" width="256" height="256"></canvas>
     <div class="action-buttons">
         <button id="randomizeBtn" class="action-btn" onclick="randomizeNFT()">Randomize</button>
         <button id="downloadBtn" class="action-btn" onclick="downloadNFT()">Download PNG</button>
@@ -459,6 +479,21 @@
     <div class="nft-viewer" style="margin-top: 20px; width: 100%; max-width: 600px;">
         <h2>Your Bored Ape Shib Club NFTs</h2>
         <div id="nftList" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>
+    </div>
+    <div class="preview-section">
+        <h2>Image Preview</h2>
+        <div class="settings">
+            <div>
+                <label for="qualityInput">Quality (0-100%):</label>
+                <input type="number" id="qualityInput" min="0" max="100" value="30" style="width: 60px;">
+            </div>
+            <div>
+                <label for="sizeInput">Size (px):</label>
+                <input type="number" id="sizeInput" min="64" max="512" step="64" value="256" style="width: 60px;">
+            </div>
+        </div>
+        <p>Base64 Length: <span id="base64Length">0</span> bytes</p>
+        <textarea id="base64Preview" readonly></textarea>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
@@ -486,6 +521,8 @@
 
         const canvas = document.getElementById("nftCanvas");
         const ctx = canvas.getContext("2d");
+        let currentSize = 256; // 默认尺寸
+        let currentQuality = 0.3; // 默认质量 30%
 
         let web3, accounts, contract, noneTokenContract;
         const CONTRACT_ADDRESS = "0xE204721807f8a9FEe31B766141FBAE9F192856C9";
@@ -598,7 +635,7 @@
                 const img = new Image();
                 img.src = `images/${layerName}/${layerValue}.png`;
                 img.onload = () => {
-                    ctx.drawImage(img, 0, 0, 256, 256); // 调整为 256x256
+                    ctx.drawImage(img, 0, 0, currentSize, currentSize);
                     resolve();
                 };
                 img.onerror = () => {
@@ -609,11 +646,14 @@
         }
 
         async function updateNFT() {
+            canvas.width = currentSize;
+            canvas.height = currentSize;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (const layer of layerOrder) {
                 const layerValue = layers[layer][currentIndices[layer]];
                 await drawLayer(layer, layerValue);
             }
+            updateBase64Preview();
         }
 
         function cycleLayer(layer, direction) {
@@ -641,8 +681,14 @@
         function downloadNFT() {
             const link = document.createElement("a");
             link.download = "nft-custom.png";
-            link.href = canvas.toDataURL("image/png", 0.3); // 保持 30% 质量
+            link.href = canvas.toDataURL("image/png", currentQuality);
             link.click();
+        }
+
+        function updateBase64Preview() {
+            const base64Data = canvas.toDataURL("image/png", currentQuality);
+            document.getElementById("base64Preview").value = base64Data;
+            document.getElementById("base64Length").textContent = base64Data.length;
         }
 
         async function mintNFT() {
@@ -669,7 +715,7 @@
         async function proceedWithMinting() {
             const mintButton = document.getElementById('mintBtn');
             try {
-                const imageData = canvas.toDataURL("image/png", 0.3).split(',')[1]; // 30% 质量
+                const imageData = canvas.toDataURL("image/png", currentQuality).split(',')[1];
                 const attributes = layerOrder.map(layer => layers[layer][currentIndices[layer]]);
                 const totalSupply = await contract.methods.totalSupply().call();
                 const metadata = {
@@ -682,7 +728,7 @@
                     }))
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
-                console.log('Token URI Length:', tokenURI.length); // 调试：打印 tokenURI 长度
+                console.log('Token URI Length:', tokenURI.length);
                 const userStatus = await noneTokenContract.methods.getUserStatus(accounts[0]).call();
                 const hasJoined = userStatus[0];
                 const isNode = userStatus[2];
@@ -767,6 +813,14 @@
             fetchOwnedNFTs();
         }
 
+        function updateSettings() {
+            const qualityInput = document.getElementById('qualityInput').value;
+            const sizeInput = document.getElementById('sizeInput').value;
+            currentQuality = Math.max(0, Math.min(1, qualityInput / 100)); // 转换为 0-1 范围
+            currentSize = Math.max(64, Math.min(512, sizeInput)); // 限制在 64-512
+            updateNFT();
+        }
+
         window.onload = () => {
             for (const layer of layerOrder) {
                 updateLayerValue(layer);
@@ -777,6 +831,8 @@
             } else if (!window.ethereum) {
                 showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
             }
+            document.getElementById('qualityInput').addEventListener('input', updateSettings);
+            document.getElementById('sizeInput').addEventListener('input', updateSettings);
         };
 
         window.ethereum?.on('chainChanged', (chainId) => {
