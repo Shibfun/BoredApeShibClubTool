@@ -170,7 +170,7 @@
             {"inputs":[{"internalType":"address","name":"tokenOwner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
             {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
-            {"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+            {"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
         ];
 
         const shibariumMainnet = {
@@ -244,7 +244,7 @@
             const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
             document.getElementById('walletAddress').innerText = shortAddress;
             try {
-                const owner = await contract.methods.owner().call();
+                const owner = await contract.methods.contractOwner().call();
                 isOwner = owner.toLowerCase() === accounts[0].toLowerCase();
                 if (!isOwner) {
                     showModal('You are not the contract owner!');
@@ -319,7 +319,7 @@
             if (!window.ethereum) {
                 showModal('No wallet detected. Please install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
             }
-            document.getElementById('whitelistAddresses').addEventListener('input', checkAddressesInput);
+            document.getElementNameById('whitelistAddresses').addEventListener('input', checkAddressesInput);
         };
 
         window.ethereum?.on('chainChanged', (chainId) => {
