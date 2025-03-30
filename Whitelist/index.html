@@ -6,7 +6,128 @@
     <title>Bored Ape Shib Club - Whitelist Manager</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <style>
-        /* Existing styles remain unchanged */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: #fff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 48px;
+            color: #00ff9d;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+        .wallet-info {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .owner-info {
+            margin: 10px 0;
+            font-size: 16px;
+            word-break: break-all;
+        }
+        .whitelist-form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            font-size: 14px;
+            background: #333;
+            color: #fff;
+            border: 1px solid #00ff9d;
+            border-radius: 10px;
+            resize: vertical;
+        }
+        .action-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: linear-gradient(45deg, #00ff9d, #00cc7a);
+            color: #1a1a1a;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.7);
+        }
+        .action-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .action-btn.loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: #fff;
+            max-width: 350px;
+            border: 2px solid #00ff9d;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+        }
+        .modal-content p {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .modal-content button {
+            padding: 10px 20px;
+            background: #00ff9d;
+            color: #1a1a1a;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 32px;
+            }
+            .wallet-info, .owner-info {
+                font-size: 14px;
+            }
+            textarea {
+                font-size: 12px;
+                height: 150px;
+            }
+            .action-btn {
+                padding: 8px 16px;
+                font-size: 14px;
+            }
+            .modal-content {
+                max-width: 90%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -14,6 +135,9 @@
         <h1>Bored Ape Shib Club - Whitelist Manager</h1>
         <div class="wallet-info">
             Wallet: <span id="walletAddress">Not connected</span>
+        </div>
+        <div class="owner-info">
+            Contract Owner: <span id="contractOwner">Not loaded</span>
         </div>
         <button id="connectWalletBtn" class="action-btn">Connect Wallet</button>
     </div>
@@ -33,7 +157,27 @@
         let web3, accounts, contract;
         let isOwner = false;
         const CONTRACT_ADDRESS = "0x8CbCfF7f9Ef9d16A50A04a787A609189DA8FddA5";
-        const CONTRACT_ABI = [/* Same ABI as before */];
+        const CONTRACT_ABI = [
+            {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
+            {"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"removeFromWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},
+            {"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},
+            {"inputs":[{"internalType":"address","name":"owner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},
+            {"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}
+        ];
         const shibariumMainnet = {
             chainId: 109,
             chainName: 'Shibarium',
@@ -41,7 +185,7 @@
             rpcUrls: ['https://www.shibrpc.com'],
             blockExplorerUrls: ['https://shibariumscan.io']
         };
-        const MAX_BATCH_SIZE = 50; // Limit batch size to prevent gas issues
+        const MAX_BATCH_SIZE = 50;
 
         function showModal(message) {
             document.getElementById('modalMessage').innerHTML = message;
@@ -68,6 +212,7 @@
                 }
                 contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
                 await updateWalletInfo();
+                await loadContractOwner();
                 showModal('Connected to Shibarium successfully!');
             } catch (error) {
                 showModal('Connection failed: ' + error.message);
@@ -91,6 +236,16 @@
                 } else {
                     throw new Error('Please switch to Shibarium manually');
                 }
+            }
+        }
+
+        async function loadContractOwner() {
+            try {
+                const owner = await contract.methods.contractOwner().call();
+                document.getElementById('contractOwner').innerText = owner;
+            } catch (error) {
+                document.getElementById('contractOwner').innerText = 'Failed to load';
+                console.error('Failed to load contract owner:', error);
             }
         }
 
@@ -129,7 +284,7 @@
             const batch = addresses.slice(startIdx, startIdx + batchSize);
             try {
                 const gasEstimate = await contract.methods.addToWhitelist(batch).estimateGas({ from: accounts[0] });
-                const gasLimit = Math.floor(gasEstimate * 1.2); // 20% buffer
+                const gasLimit = Math.floor(gasEstimate * 1.2);
                 
                 const tx = await contract.methods.addToWhitelist(batch).send({
                     from: accounts[0],
