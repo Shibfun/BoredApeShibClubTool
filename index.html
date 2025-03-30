@@ -732,7 +732,7 @@
                 const gasEstimate = await contract.methods.mintNFT(tokenURI, attributes).estimateGas({ from: accounts[0] });
                 console.log("Estimated Gas:", gasEstimate);
                 showModal('Minting NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 3000000 });
+                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 20000000 });
                 showModal('NFT minted successfully!');
                 updateWalletInfo();
                 fetchOwnedNFTs();
