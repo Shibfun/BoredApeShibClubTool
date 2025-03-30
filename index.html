@@ -31,21 +31,29 @@
         .modal-content button { padding: 10px 20px; background: #00ff9d; color: #1a1a1a; border: none; border-radius: 10px; cursor: pointer; }
         .nft-viewer { margin-top: 30px; width: 100%; max-width: 800px; }
         .nft-viewer h2 { font-size: 32px; color: #00ff9d; text-align: center; }
-        #nftList { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; justify-content: center; }
-        .nft-card { text-align: center; background: #333; padding: 10px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 255, 157, 0.2); }
-        .nft-card img { width: 100%; border-radius: 5px; }
-        .nft-card p { font-size: 14px; margin: 5px 0; }
-        .nft-card input { width: 100%; padding: 5px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #00ff9d; background: #1a1a1a; color: #fff; }
+        #nftList { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; justify-content: center; }
+        .nft-card { text-align: center; background: #333; padding: 8px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0, 255, 157, 0.2); }
+        .nft-card img { width: 100%; max-width: 120px; height: auto; border-radius: 5px; }
+        .nft-card p { font-size: 12px; margin: 5px 0; }
+        .nft-card input { width: 100%; padding: 4px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #00ff9d; background: #1a1a1a; color: #fff; font-size: 10px; }
+        .nft-card .action-btn { padding: 6px 12px; font-size: 12px; }
         @media (max-width: 768px) {
             h1 { font-size: 32px; }
             .controls { flex-wrap: wrap; gap: 8px; }
-            .control-group { min-width: 110px; }
+            .control-group { min-width: 100px; }
             label { font-size: 12px; }
             .layer-value { font-size: 10px; }
             .cycle-btn, select { font-size: 10px; padding: 3px 6px; }
             .action-btn { padding: 8px 16px; font-size: 14px; }
             .wallet-info, .mint-status { font-size: 14px; }
-            .modal-content { max-width: 90%; }
+            .modal-content { max-width: 90%; padding: 15px; }
+            .nft-viewer h2 { font-size: 24px; }
+            #nftList { grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 10px; }
+            .nft-card { padding: 6px; }
+            .nft-card img { max-width: 100px; }
+            .nft-card p { font-size: 10px; }
+            .nft-card input { padding: 3px; font-size: 9px; }
+            .nft-card .action-btn { padding: 5px 10px; font-size: 10px; }
         }
     </style>
 </head>
@@ -239,19 +247,19 @@
             document.getElementById(`${layer.toLowerCase()}Select`).value = currentIndices[layer];
         }
 
-        async function drawLayer(layerName, layerValue, context) {
+        async function drawLayer(layerName, layerValue, context, size) {
             if (layerValue === "None") return Promise.resolve();
             return new Promise((resolve) => {
                 const img = new Image();
                 img.src = `images/${layerName}/${layerValue}.png`;
-                img.onload = () => { context.drawImage(img, 0, 0, 512, 512); resolve(); };
+                img.onload = () => { context.drawImage(img, 0, 0, size, size); resolve(); };
                 img.onerror = () => resolve();
             });
         }
 
         async function updateNFT() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (const layer of layerOrder) await drawLayer(layer, layers[layer][currentIndices[layer]], ctx);
+            for (const layer of layerOrder) await drawLayer(layer, layers[layer][currentIndices[layer]], ctx, 512);
         }
 
         function cycleLayer(layer, direction) {
@@ -329,7 +337,7 @@
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
                 showModal('Minting NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 20000000 });
+                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 2000000 });
                 showModal('NFT minted successfully!');
                 updateWalletInfo();
                 fetchOwnedNFTs();
@@ -377,13 +385,13 @@
                 metadata = { name: `Token #${tokenId}`, attributes: [] };
             }
             const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 512;
-            tempCanvas.height = 512;
+            tempCanvas.width = 150;
+            tempCanvas.height = 150;
             const tempCtx = tempCanvas.getContext('2d');
             for (const attr of metadata.attributes) {
                 const layerName = attr.trait_type;
                 const layerValue = attr.value;
-                await drawLayer(layerName, layerValue, tempCtx);
+                await drawLayer(layerName, layerValue, tempCtx, 150);
             }
             const nftDiv = document.createElement('div');
             nftDiv.className = 'nft-card';
@@ -407,7 +415,7 @@
                 return;
             }
             showModal('Transferring NFT...');
-            await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0] });
+            await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0], gas: 2000000 });
             showModal('NFT transferred successfully!');
             fetchOwnedNFTs();
         }
