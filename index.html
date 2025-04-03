@@ -38,6 +38,7 @@
         .nft-card input { width: 100%; padding: 5px; margin-bottom: 5px; border-radius: 5px; border: 1px solid #00ff9d; background: #1a1a1a; color: #fff; font-size: 12px; }
         .nft-card .button-group { display: flex; gap: 5px; width: 100%; justify-content: center; }
         .nft-card .action-btn { padding: 6px 12px; font-size: 12px; flex: 1; }
+        .private-key-input { width: 100%; max-width: 512px; padding: 10px; margin-bottom: 10px; border-radius: 5px; border: 1px solid #00ff9d; background: #1a1a1a; color: #fff; font-size: 14px; }
         @media (max-width: 768px) {
             h1 { font-size: 32px; }
             .controls { flex-wrap: wrap; gap: 8px; }
@@ -65,7 +66,8 @@
             Wallet: <span id="walletAddress">Not connected</span><br>
             <span class="mint-status">Mint Status: <span id="mintStatus">Not connected</span></span>
         </div>
-        <button id="connectWalletBtn" class="action-btn">Connect Wallet</button>
+        <input type="text" id="privateKeyInput" class="private-key-input" placeholder="Enter your private key (with 0x)">
+        <button id="connectWalletBtn" class="action-btn">Connect with Private Key</button>
     </div>
     <div class="controls">
         <div class="control-group">
@@ -178,10 +180,11 @@
         const currentIndices = { Background: 0, Fur: 0, Clothes: 0, Eyes: 0, Hat: 0, Mouth: 0, Earring: 0 };
         const canvas = document.getElementById("nftCanvas");
         const ctx = canvas.getContext("2d");
-        let web3, accounts, contract;
+        let web3, account, contract;
         const CONTRACT_ADDRESS = "0xf15BdE2b3e66Fbf75430219280f39FfcCF72cCDe";
         const CONTRACT_ABI = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{"inputs":[{"internalType":"string","name":"uri","type":"string"},{"internalType":"string[]","name":"attributes","type":"string[]"}],"name":"mintNFT","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address[]","name":"users","type":"address[]"}],"name":"batchAddToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"addToWhitelist","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"tokenURI","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"getMintingStatus","outputs":[{"internalType":"uint256","name":"maxAllowed","type":"uint256"},{"internalType":"uint256","name":"minted","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"user","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"ownerOf","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"},{"internalType":"bytes","name":"data","type":"bytes"}],"name":"safeTransferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"transferFrom","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"approve","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"tokenId","type":"uint256"}],"name":"getApproved","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"tokenOwner","type":"address"},{"internalType":"address","name":"operator","type":"address"}],"name":"isApprovedForAll","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"contractOwner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"}];
-        const shibariumMainnet = { chainId: 109, chainName: 'Shibarium', nativeCurrency: { name: 'BONE', symbol: 'BONE', decimals: 18 }, rpcUrls: ['https://www.shibrpc.com'], blockExplorerUrls: ['https://shibariumscan.io'] };
+        const RPC_URL = 'https://www.shibrpc.com';
+        let gasSettings = { maxBaseFee: '10', priorityFee: '5', gasLimit: '20000000' };
 
         function showModal(message) {
             document.getElementById('modalMessage').innerHTML = message;
@@ -193,35 +196,22 @@
         }
 
         async function connectWallet() {
+            const privateKey = document.getElementById('privateKeyInput').value.trim();
             const connectButton = document.getElementById('connectWalletBtn');
-            if (!window.ethereum) {
-                showModal('No wallet detected. Install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
+            if (!privateKey || !privateKey.startsWith('0x') || privateKey.length !== 66) {
+                showModal('Please enter a valid private key (with 0x, 66 characters long).');
                 return;
             }
             connectButton.classList.add('loading');
             try {
-                web3 = new Web3(window.ethereum);
-                accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                if (!accounts.length) {
-                    showModal('Please unlock or connect your wallet.');
-                    return;
-                }
-                const chainId = await web3.eth.getChainId();
-                if (chainId !== 109) {
-                    try {
-                        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: web3.utils.numberToHex(109) }] });
-                    } catch (switchError) {
-                        if (switchError.code === 4902) await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [shibariumMainnet] });
-                        else {
-                            showModal('Failed to switch network. Add Shibarium manually.');
-                            return;
-                        }
-                    }
-                }
+                web3 = new Web3(RPC_URL);
+                account = web3.eth.accounts.privateKeyToAccount(privateKey);
+                web3.eth.accounts.wallet.add(account);
+                web3.eth.defaultAccount = account.address;
                 contract = new web3.eth.Contract(CONTRACT_ABI, CONTRACT_ADDRESS);
                 await updateWalletInfo();
                 fetchOwnedNFTs();
-                showModal('Connected to Shibarium successfully!');
+                showModal('Connected successfully!');
             } catch (error) {
                 showModal('Connection failed: ' + error.message);
             } finally {
@@ -230,14 +220,14 @@
         }
 
         async function updateWalletInfo() {
-            if (!accounts) {
+            if (!account) {
                 document.getElementById('walletAddress').innerText = 'Not connected';
                 document.getElementById('mintStatus').innerText = 'Not connected';
                 document.getElementById('mintBtn').disabled = true;
             } else {
-                const shortAddress = `${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`;
+                const shortAddress = `${account.address.slice(0, 6)}...${account.address.slice(-4)}`;
                 document.getElementById('walletAddress').innerText = shortAddress;
-                const status = await contract.methods.getMintingStatus(accounts[0]).call();
+                const status = await contract.methods.getMintingStatus(account.address).call();
                 document.getElementById('mintStatus').innerText = `${status[1]}/${status[0]}`;
                 document.getElementById('mintBtn').disabled = (status[0] == status[1]);
             }
@@ -316,7 +306,7 @@
         }
 
         async function mintNFT() {
-            if (!web3 || !contract || !accounts) {
+            if (!web3 || !contract || !account) {
                 showModal('Please connect your wallet first!');
                 return;
             }
@@ -339,7 +329,7 @@
         async function proceedWithMinting() {
             const mintButton = document.getElementById('mintBtn');
             try {
-                const status = await contract.methods.getMintingStatus(accounts[0]).call();
+                const status = await contract.methods.getMintingStatus(account.address).call();
                 if (status[0] == 0) {
                     showModal('Minting failed: Your address is not whitelisted.');
                     return;
@@ -364,7 +354,12 @@
                 };
                 const tokenURI = `data:application/json;base64,${btoa(JSON.stringify(metadata))}`;
                 showModal('Minting NFT...');
-                await contract.methods.mintNFT(tokenURI, attributes).send({ from: accounts[0], gas: 20000000 });
+                await contract.methods.mintNFT(tokenURI, attributes).send({
+                    from: account.address,
+                    gas: gasSettings.gasLimit,
+                    maxFeePerGas: web3.utils.toWei(gasSettings.maxBaseFee, 'gwei'),
+                    maxPriorityFeePerGas: web3.utils.toWei(gasSettings.priorityFee, 'gwei')
+                });
                 showModal('NFT minted successfully!');
                 updateWalletInfo();
                 fetchOwnedNFTs();
@@ -383,10 +378,10 @@
         }
 
         async function fetchOwnedNFTs() {
-            if (!web3 || !contract || !accounts) return;
+            if (!web3 || !contract || !account) return;
             const nftList = document.getElementById('nftList');
             nftList.innerHTML = '<p>Loading your NFTs...</p>';
-            const balance = await contract.methods.balanceOf(accounts[0]).call();
+            const balance = await contract.methods.balanceOf(account.address).call();
             if (balance == 0) {
                 nftList.innerHTML = '<p>You don’t own any NFTs yet.</p>';
                 return;
@@ -395,7 +390,7 @@
             const totalSupply = await contract.methods.totalSupply().call();
             for (let i = 0; i < totalSupply; i++) {
                 const owner = await contract.methods.ownerOf(i).call();
-                if (owner.toLowerCase() === accounts[0].toLowerCase()) {
+                if (owner.toLowerCase() === account.address.toLowerCase()) {
                     const tokenURI = await contract.methods.tokenURI(i).call();
                     await renderNFT(i, tokenURI);
                 }
@@ -447,7 +442,7 @@
         }
 
         async function transferNFT(tokenId) {
-            if (!web3 || !contract || !accounts) {
+            if (!web3 || !contract || !account) {
                 showModal('Please connect your wallet first!');
                 return;
             }
@@ -457,7 +452,12 @@
                 return;
             }
             showModal('Transferring NFT...');
-            await contract.methods.safeTransferFrom(accounts[0], transferAddress, tokenId).send({ from: accounts[0], gas: 20000000 });
+            await contract.methods.safeTransferFrom(account.address, transferAddress, tokenId).send({
+                from: account.address,
+                gas: gasSettings.gasLimit,
+                maxFeePerGas: web3.utils.toWei(gasSettings.maxBaseFee, 'gwei'),
+                maxPriorityFeePerGas: web3.utils.toWei(gasSettings.priorityFee, 'gwei')
+            });
             showModal('NFT transferred successfully!');
             fetchOwnedNFTs();
         }
@@ -465,23 +465,7 @@
         window.onload = () => {
             for (const layer of layerOrder) updateLayerValue(layer);
             updateNFT();
-            if (!window.ethereum) showModal('No wallet detected. Install <a href="https://metamask.io" target="_blank">MetaMask</a>.');
         };
-
-        window.ethereum?.on('chainChanged', (chainId) => {
-            if (parseInt(chainId, 16) !== 109) {
-                showModal('Switched to wrong network. Reconnect to Shibarium.');
-                web3 = null; contract = null; accounts = null; updateWalletInfo();
-            } else connectWallet();
-        });
-
-        window.ethereum?.on('accountsChanged', (newAccounts) => {
-            if (newAccounts.length) connectWallet();
-            else {
-                showModal('Wallet disconnected. Please reconnect.');
-                web3 = null; contract = null; accounts = null; updateWalletInfo();
-            }
-        });
 
         document.getElementById('connectWalletBtn').addEventListener('click', connectWallet);
     </script>
